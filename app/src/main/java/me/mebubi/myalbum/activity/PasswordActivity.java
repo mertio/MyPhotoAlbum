@@ -1,4 +1,4 @@
-package me.mebubi.mygoals.activity;
+package me.mebubi.myalbum.activity;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import me.mebubi.mygoals.R;
+import me.mebubi.myalbum.R;
 
 public class PasswordActivity extends AppCompatActivity implements View.OnClickListener {
 

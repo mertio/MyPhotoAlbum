@@ -1,4 +1,4 @@
-package me.mebubi.mygoals.database;
+package me.mebubi.myalbum.database;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

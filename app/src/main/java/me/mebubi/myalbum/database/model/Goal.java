@@ -1,4 +1,4 @@
-package me.mebubi.mygoals.database.model;
+package me.mebubi.myalbum.database.model;
 
 import android.graphics.Bitmap;
 
@@ -8,7 +8,7 @@ public class Goal {
     public static final String TABLE_NAME = "goal";
 
     public static final String GOAL_ID = "goalId";
-    public static final String ORIGINAL_IMAGE_FILE = "originalImageFile";
+    public static final String ORIGINAL_IMAGE_PATH = "originalImagePath";
     public static final String IMAGE_FILE = "imageFile";
     public static final String TITLE = "title";
     public static final String DESCRIPTION = "description";
@@ -17,7 +17,7 @@ public class Goal {
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
                     + GOAL_ID + " INTEGER PRIMARY KEY,"
-                    + ORIGINAL_IMAGE_FILE + " BLOB,"
+                    + ORIGINAL_IMAGE_PATH + " TEXT,"
                     + IMAGE_FILE + " BLOB,"
                     + TITLE + " TEXT,"
                     + DESCRIPTION + " TEXT,"

@@ -1,4 +1,4 @@
-package me.mebubi.mygoals.dialog;
+package me.mebubi.myalbum.dialog;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -25,8 +25,8 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import me.mebubi.mygoals.R;
-import me.mebubi.mygoals.database.model.Goal;
+import me.mebubi.myalbum.R;
+import me.mebubi.myalbum.database.model.Goal;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -44,6 +44,7 @@ public class AddGoalDialogFragment extends DialogFragment {
     private EditText goalTitleEditText;
     private EditText goalDescriptionEditText;
     private Button addButton;
+    private Button cancelButton;
 
     private Bitmap originalPicToUpload;
     private Bitmap picToUpload;
@@ -70,6 +71,15 @@ public class AddGoalDialogFragment extends DialogFragment {
         goalTitleEditText = v.findViewById(R.id.goalTitleEditText);
         goalDescriptionEditText = v.findViewById(R.id.goalDescriptionEditText);
         addButton = v.findViewById(R.id.addButton);
+        cancelButton = v.findViewById(R.id.cancelButton);
+
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismiss();
+            }
+        });
 
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -81,14 +91,14 @@ public class AddGoalDialogFragment extends DialogFragment {
                     return;
                 }
 
-                Log.d(LOGTAG, "Goal: " + goal);
-
                 onAddGoalListener = (OnAddGoalListener) getContext();
                 onAddGoalListener.onGoalAdd(goal);
 
                 dismiss();
             }
         });
+
+
 
         goalImageViewEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,11 +139,12 @@ public class AddGoalDialogFragment extends DialogFragment {
             return false;
         }
 
-
+        /*
         if (goal.getImage() == null) {
             Toast.makeText(getContext(), "No image uploaded!", Toast.LENGTH_LONG).show();
             return false;
         }
+        */
 
 
         return true;
@@ -175,7 +186,8 @@ public class AddGoalDialogFragment extends DialogFragment {
                 picUri = data.getData();
 
                 try {
-                    originalPicToUpload = decodeUri(getContext(), picUri, 300);
+                    //originalPicToUpload = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), picUri);
+                    originalPicToUpload = decodeUri(getContext(), picUri, 600);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

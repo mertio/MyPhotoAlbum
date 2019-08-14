@@ -1,4 +1,4 @@
-package me.mebubi.mygoals;
+package me.mebubi.myalbum;
 
 import org.junit.Test;
 

@@ -1,9 +1,9 @@
-package me.mebubi.mygoals.model;
+package me.mebubi.myalbum.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import me.mebubi.mygoals.database.model.Goal;
+import me.mebubi.myalbum.database.model.Goal;
 
 public class GoalModel {
 

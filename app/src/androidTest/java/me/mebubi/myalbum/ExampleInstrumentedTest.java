@@ -1,4 +1,4 @@
-package me.mebubi.mygoals;
+package me.mebubi.myalbum;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

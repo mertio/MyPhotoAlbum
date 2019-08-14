@@ -1,4 +1,4 @@
-package me.mebubi.mygoals.adapter;
+package me.mebubi.myalbum.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-import me.mebubi.mygoals.database.model.Goal;
-import me.mebubi.mygoals.view.GoalView;
+import me.mebubi.myalbum.database.model.Goal;
+import me.mebubi.myalbum.view.GoalView;
 
 public class GoalAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

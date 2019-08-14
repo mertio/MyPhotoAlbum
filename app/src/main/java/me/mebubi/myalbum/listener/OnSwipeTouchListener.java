@@ -1,4 +1,4 @@
-package me.mebubi.mygoals.listener;
+package me.mebubi.myalbum.listener;
 
 // Thanks to Mirek Rusin
 // https://stackoverflow.com/questions/4139288/android-how-to-handle-right-to-left-swipe-gestures

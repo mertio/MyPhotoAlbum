@@ -1,4 +1,4 @@
-package me.mebubi.mygoals.view;
+package me.mebubi.myalbum.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,16 +10,16 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import me.mebubi.mygoals.R;
-import me.mebubi.mygoals.database.DatabaseHelper;
-import me.mebubi.mygoals.database.model.Goal;
+import me.mebubi.myalbum.R;
+import me.mebubi.myalbum.database.DatabaseHelper;
+import me.mebubi.myalbum.database.model.Goal;
 
 public class GoalView extends ConstraintLayout {
 
     private static final String LOGTAG = "GoalView";
 
     public interface OnGoalClickListener {
-        void onGoalClick(int goalId);
+        void onGoalClick(String originalImagePath);
         void onGoalLongClick(boolean success);
     }
 
@@ -44,30 +44,31 @@ public class GoalView extends ConstraintLayout {
             goalImage.setImageBitmap(goal.getImage());
         } else {
             goalImage.setImageResource(R.drawable.ic_launcher_background);
+            goalImage.setVisibility(GONE);
         }
         goalTitle.setText(goal.getTitle());
         goalDescription.setText(goal.getDescription());
 
-        this.setOnClickListener(new OnClickListener() {
+        goalImage.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(LOGTAG, "Clicked on goal");
                 onGoalClickListener = (OnGoalClickListener) getContext();
-                onGoalClickListener.onGoalClick(goal.getGoalId());
+                onGoalClickListener.onGoalClick(goal.getCreationDate() + ".jpg");
             }
         });
 
         this.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                showConfirmDialogForGoalDelete((Activity) getContext(), goal.getGoalId());
+                showConfirmDialogForGoalDelete((Activity) getContext(), goal);
                 return true;
             }
         });
 
     }
 
-    public void showConfirmDialogForGoalDelete(Activity activity, final int goalId) {
+    public void showConfirmDialogForGoalDelete(Activity activity, final Goal goal) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Are you sure you want to delete goal?");
         // Add the buttons
@@ -75,7 +76,7 @@ public class GoalView extends ConstraintLayout {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
                 DatabaseHelper db = new DatabaseHelper(getContext());
-                boolean success = db.deleteGoalFromDatabase(goalId);
+                boolean success = db.deleteGoalFromDatabase(goal);
                 Log.d(LOGTAG, "Goal deletion success : " + success);
                 db.close();
                 onGoalClickListener = (OnGoalClickListener) getContext();
