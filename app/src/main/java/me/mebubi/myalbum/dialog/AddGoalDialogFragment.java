@@ -3,6 +3,7 @@ package me.mebubi.myalbum.dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -64,7 +65,14 @@ public class AddGoalDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_create_edit_goal, container, false);
+        View v;
+
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            v = inflater.inflate(R.layout.fragment_create_edit_goal_landscape, container, false);
+        } else {
+            v = inflater.inflate(R.layout.fragment_create_edit_goal, container, false);
+        }
+
 
 
         goalImageViewEdit = v.findViewById(R.id.goalImageViewEdit);
@@ -98,6 +106,9 @@ public class AddGoalDialogFragment extends DialogFragment {
             }
         });
 
+        if (picToUpload != null) {
+            goalImageViewEdit.setImageBitmap(picToUpload);
+        }
 
 
         goalImageViewEdit.setOnClickListener(new View.OnClickListener() {
@@ -225,6 +236,13 @@ public class AddGoalDialogFragment extends DialogFragment {
             }
         }
 
+    }
 
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        this.dismiss();
+        this.show(getFragmentManager(), "addGoalDialog");
     }
 }

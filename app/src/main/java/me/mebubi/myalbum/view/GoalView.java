@@ -10,9 +10,14 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import me.mebubi.myalbum.R;
 import me.mebubi.myalbum.database.DatabaseHelper;
 import me.mebubi.myalbum.database.model.Goal;
+import me.mebubi.myalbum.utility.PostTimeFormat;
 
 public class GoalView extends ConstraintLayout {
 
@@ -26,6 +31,7 @@ public class GoalView extends ConstraintLayout {
     private ImageView goalImage;
     private TextView goalTitle;
     private TextView goalDescription;
+    private TextView goalDate;
 
     private OnGoalClickListener onGoalClickListener;
 
@@ -39,9 +45,17 @@ public class GoalView extends ConstraintLayout {
         goalImage = findViewById(R.id.goalImageViewEdit);
         goalTitle = findViewById(R.id.goalTitleEditText);
         goalDescription = findViewById(R.id.goalDescriptionEditText);
+        goalDate = findViewById(R.id.goalDateText);
+
+        if (goal.getDescription().equals("")) {
+            goalDescription.setVisibility(GONE);
+        } else {
+            goalDescription.setVisibility(VISIBLE);
+        }
 
         if(goal.getImage() != null) {
             goalImage.setImageBitmap(goal.getImage());
+            goalImage.setVisibility(VISIBLE);
         } else {
             goalImage.setImageResource(R.drawable.ic_launcher_background);
             goalImage.setVisibility(GONE);
@@ -49,20 +63,31 @@ public class GoalView extends ConstraintLayout {
         goalTitle.setText(goal.getTitle());
         goalDescription.setText(goal.getDescription());
 
-        goalImage.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(LOGTAG, "Clicked on goal");
-                onGoalClickListener = (OnGoalClickListener) getContext();
-                onGoalClickListener.onGoalClick(goal.getCreationDate() + ".jpg");
-            }
-        });
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm");
+        goalDate.setText(sdf.format(new Date(goal.getCreationDate())).toLowerCase());
 
         this.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 showConfirmDialogForGoalDelete((Activity) getContext(), goal);
                 return true;
+            }
+        });
+
+        goalImage.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                showConfirmDialogForGoalDelete((Activity) getContext(), goal);
+                return true;
+            }
+        });
+
+        goalImage.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(LOGTAG, "Clicked on goal");
+                onGoalClickListener = (OnGoalClickListener) getContext();
+                onGoalClickListener.onGoalClick(goal.getCreationDate() + ".jpg");
             }
         });
 

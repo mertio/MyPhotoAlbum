@@ -12,37 +12,37 @@ public class PostTimeFormat {
 
         long tempTimePassed = 0;
         if(timePassedInSeconds < 60) { // > 60 seconds
-            return "Posted just now";
+            return "Just now";
         }
         else if (timePassedInSeconds < 60*60) { // < 60 minutes
             tempTimePassed = (timePassedInSeconds/60);
             if(tempTimePassed == 1)
-                return "Posted " + tempTimePassed + " minute ago";
-            return "Posted " + tempTimePassed + " minutes ago";
+                return tempTimePassed + " minute ago";
+            return tempTimePassed + " minutes ago";
         }
         else if (timePassedInSeconds < 60*60*24) { // < 24 hours
             tempTimePassed = (timePassedInSeconds/(60*60));
             if(tempTimePassed == 1)
-                return "Posted " + tempTimePassed + " hour ago";
-            return "Posted " + tempTimePassed + " hours ago";
+                return tempTimePassed + " hour ago";
+            return tempTimePassed + " hours ago";
         }
         else if (timePassedInSeconds < 60*60*24*30) { // < 30 days
             tempTimePassed = (timePassedInSeconds/(60*60*24));
             if(tempTimePassed == 1)
-                return "Posted " + tempTimePassed + " day ago";
-            return "Posted " + tempTimePassed + " days ago";
+                return tempTimePassed + " day ago";
+            return tempTimePassed + " days ago";
         }
         else if (timePassedInSeconds < 60*60*24*365) { // < 365 days
             tempTimePassed = (timePassedInSeconds/(60*60*24*30));
             if(tempTimePassed == 1)
-                return "Posted " + tempTimePassed + " month ago";
-            return "Posted " + tempTimePassed + " months ago";
+                return tempTimePassed + " month ago";
+            return tempTimePassed + " months ago";
         }
         else { // more than a year has passed
             tempTimePassed = (timePassedInSeconds/(60*60*24*365));
             if(tempTimePassed == 1)
-                return "Posted " + tempTimePassed + " year ago";
-            return "Posted " + tempTimePassed + " years ago";
+                return tempTimePassed + " year ago";
+            return tempTimePassed + " years ago";
         }
 
     }

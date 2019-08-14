@@ -186,7 +186,10 @@ public class MainActivity extends AppCompatActivity implements AddGoalDialogFrag
         layoutManager = new GridLayoutManager(this, spanCount);
         goalsRecyclerView.setLayoutManager(layoutManager);
         goalAdapter.notifyDataSetChanged();
+
+        // hide accessory widgets on initialization
         exitFullScreenImageDisplayMode();
+        hideProgressBar();
     }
 
     private void setOnClickMethods() {
@@ -289,7 +292,6 @@ public class MainActivity extends AppCompatActivity implements AddGoalDialogFrag
         protected Object doInBackground(Object[] objects) {
             if (goalAdapter.getGoalList().isEmpty()) {
                 success = db.loadGoalsFromDatabase(0, clearAndLoad);
-                hideProgressBar();
                 return null;
             }
             success = db.loadGoalsFromDatabase(goalAdapter.getGoalList().get(goalAdapter.getItemCount() - 1).getGoalId(), clearAndLoad);

@@ -3,4 +3,5 @@
     <string name="action_settings">Settings</string>
     <string name="action_grid_span_one">x1 per Row</string>
     <string name="action_grid_span_two">x2 per Row</string>
+    <string name="title_activity_album_list">AlbumListActivity</string>
 </resources>
