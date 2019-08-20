@@ -10,15 +10,25 @@ import me.mebubi.myalbum.R;
 
 public class AlbumListActivity extends AppCompatActivity {
 
+    private FloatingActionButton addAlbumButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_list);
+        initialize();
+        setOnClickMethods();
+
+    }
+
+    private void initialize() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        addAlbumButton = findViewById(R.id.addAlbumActionButton);
+    }
 
-        FloatingActionButton fab = findViewById(R.id.addAlbumActionButton);
-        fab.setOnClickListener(new View.OnClickListener() {
+    private void setOnClickMethods() {
+        addAlbumButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 

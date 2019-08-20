@@ -23,7 +23,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 import me.mebubi.myalbum.R;
+import me.mebubi.myalbum.database.model.Album;
 import me.mebubi.myalbum.database.model.Goal;
+import me.mebubi.myalbum.model.AlbumModel;
 import me.mebubi.myalbum.model.GoalModel;
 import me.mebubi.myalbum.security.Crypto;
 
@@ -51,14 +53,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(Goal.CREATE_TABLE);
+        sqLiteDatabase.execSQL(Album.CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         // drop older table
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Goal.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + Album.TABLE_NAME);
         // create table again
         onCreate(sqLiteDatabase);
+    }
+
+    public void insertAlbumIntoDatabase(Album album) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Album.ALBUM_IMAGE, DbBitmapUtility.getBytes(album.getAlbumImage()));
+        values.put(Album.ALBUM_TITLE, album.getAlbumTitle());
+        values.put(Album.ALBUM_DESCRIPTION, album.getAlbumDescription());
+        values.put(Album.CREATION_DATE, album.getCreationDate());
+        values.put(Album.LAST_OPENED_DATE, album.getLastOpenedDate());
+
+        db.insert(Album.TABLE_NAME, null, values);
+
+        String lastRowIdQuery = "SELECT last_insert_rowid() FROM " + Album.TABLE_NAME;
+        Cursor cursor = db.rawQuery(lastRowIdQuery, null);
+        if(cursor.moveToFirst()) {
+            album.setAlbumId(cursor.getInt(0));
+        }
+        AlbumModel.addAlbum(album);
+        db.close();
+
     }
 
 
@@ -68,7 +95,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // first write file to the inner directory and returns absolute path to be written in database
             filePath = saveToInternalSorage(goal.getOriginalImage(), goal.getCreationDate() + ".jpg");
         }
-
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -98,6 +124,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return image;
     }
 
+
+    public boolean deleteAlbumFromDatabase(Album album) {
+        boolean success;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        success = db.delete(Album.TABLE_NAME, Album.ALBUM_ID + "=?", new String[]{album.getAlbumId() + ""}) > 0;
+        if (success) {
+            AlbumModel.deleteAlbum(album.getAlbumId());
+        }
+        db.close();
+        return success;
+    }
+
+
+
     public boolean deleteGoalFromDatabase(Goal goal) {
         boolean success;
         if (goal.getImage() != null) {
@@ -116,18 +157,59 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return success;
     }
 
+    public boolean loadAlbumsFromDatabase(long createdDateOfLastAlbum, boolean clearAndLoad) {
+        if(clearAndLoad) {
+            AlbumModel.clearAlbums();
+            createdDateOfLastAlbum = Long.MAX_VALUE;
+        }
 
-    public boolean loadGoalsFromDatabase(long goalIdOfLastItem, boolean clearAndLoad) {
+        Log.d(LOGTAG, "Loading " + ITEM_COUNT_TO_LOAD_EACH_TIME + " items from a list starting from album creation date of " + createdDateOfLastAlbum);
+
+        String selectQuery = "SELECT " + Album.ALBUM_ID + ", " + Album.ALBUM_IMAGE + ", " + Album.ALBUM_TITLE + ", " + Album.ALBUM_DESCRIPTION + ", " + Album.CREATION_DATE + ", " + Album.LAST_OPENED_DATE +
+                " FROM " + Album.TABLE_NAME + " WHERE " + Album.CREATION_DATE + " < " + createdDateOfLastAlbum +
+                " ORDER BY " + Album.CREATION_DATE + " DESC LIMIT " + ITEM_COUNT_TO_LOAD_EACH_TIME;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if(cursor.moveToFirst()) {
+
+            do {
+                Album album = new Album();
+                album.setAlbumId(cursor.getInt(cursor.getColumnIndex(Album.ALBUM_ID)));
+                byte[] image = cursor.getBlob(cursor.getColumnIndex(Album.ALBUM_IMAGE));
+                if (image != null) {
+                    album.setAlbumImage(DbBitmapUtility.getImage(image));
+                }
+                album.setAlbumTitle(cursor.getString(cursor.getColumnIndex(Album.ALBUM_TITLE)));
+                album.setAlbumDescription(cursor.getString(cursor.getColumnIndex(Album.ALBUM_DESCRIPTION)));
+                album.setCreationDate(cursor.getLong(cursor.getColumnIndex(Album.CREATION_DATE)));
+                album.setLastOpenedDate(cursor.getLong(cursor.getColumnIndex(Album.LAST_OPENED_DATE)));
+
+                AlbumModel.addAlbum(album);
+
+            } while (cursor.moveToNext());
+
+            db.close();
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+
+
+    public boolean loadGoalsFromDatabase(long createdDateOfLastItem, boolean clearAndLoad) {
 
         if(clearAndLoad) {
             GoalModel.clearGoals();
-            goalIdOfLastItem = 0;
+            createdDateOfLastItem = 0;
         }
 
-        Log.d(LOGTAG, "Loading " + ITEM_COUNT_TO_LOAD_EACH_TIME + " items from a list starting from goal id of " + goalIdOfLastItem);
+        Log.d(LOGTAG, "Loading " + ITEM_COUNT_TO_LOAD_EACH_TIME + " items from a list starting from goal creation date of " + createdDateOfLastItem);
 
         String selectQuery = "SELECT " + Goal.GOAL_ID + ", " + Goal.IMAGE_FILE + ", " + Goal.TITLE + ", " + Goal.DESCRIPTION + ", " + Goal.CREATION_DATE +
-                " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.GOAL_ID + " > " + goalIdOfLastItem +
+                " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.CREATION_DATE + " > " + createdDateOfLastItem +
                 " ORDER BY " + Goal.CREATION_DATE + " ASC LIMIT " + ITEM_COUNT_TO_LOAD_EACH_TIME;
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -155,6 +237,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return false;
         }
         return true;
+    }
+
+    public void editAlbum() {
+        // TODO
     }
 
     private String saveToInternalSorage(Bitmap bitmapImage, String fileName) {

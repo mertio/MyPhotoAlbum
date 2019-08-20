@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements AddGoalDialogFrag
                 success = db.loadGoalsFromDatabase(0, clearAndLoad);
                 return null;
             }
-            success = db.loadGoalsFromDatabase(goalAdapter.getGoalList().get(goalAdapter.getItemCount() - 1).getGoalId(), clearAndLoad);
+            success = db.loadGoalsFromDatabase(goalAdapter.getGoalList().get(goalAdapter.getItemCount() - 1).getCreationDate(), clearAndLoad);
             db.close();
             return null;
         }

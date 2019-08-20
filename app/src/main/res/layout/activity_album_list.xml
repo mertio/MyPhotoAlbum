@@ -20,7 +20,9 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_album_list" />
+    <include
+        android:id="@+id/include2"
+        layout="@layout/content_album_list" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addAlbumActionButton"
@@ -29,5 +31,13 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_add_goal" />
+
+    <ProgressBar
+        android:id="@+id/albumProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@+id/include2"
+        app:layout_anchorGravity="end|center" />
 
 </android.support.design.widget.CoordinatorLayout>
