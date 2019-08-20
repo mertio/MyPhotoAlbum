@@ -28,19 +28,15 @@ public class GoalAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-
         GoalViewHolder goalViewHolder;
         GoalView goalView = new GoalView(viewGroup.getContext());
         goalViewHolder = new GoalViewHolder(goalView);
-
         return goalViewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-
         ((GoalViewHolder) viewHolder).getGoalView().init(goalList.get(i));
-
     }
 
     @Override

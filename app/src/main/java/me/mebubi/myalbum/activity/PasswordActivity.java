@@ -114,7 +114,7 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
         }
 
         if (view.getId() == R.id.openAlbumButton) {
-            Intent intent = new Intent(PasswordActivity.this, MainActivity.class);
+            Intent intent = new Intent(PasswordActivity.this, AlbumListActivity.class);
             startActivity(intent);
             finish();
         }
