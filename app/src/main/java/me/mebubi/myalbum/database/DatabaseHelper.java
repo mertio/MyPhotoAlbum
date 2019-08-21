@@ -70,7 +70,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(Album.ALBUM_IMAGE, DbBitmapUtility.getBytes(album.getAlbumImage()));
+        if (album.getAlbumImage() != null) {
+            values.put(Album.ALBUM_IMAGE, DbBitmapUtility.getBytes(album.getAlbumImage()));
+        }
         values.put(Album.ALBUM_TITLE, album.getAlbumTitle());
         values.put(Album.ALBUM_DESCRIPTION, album.getAlbumDescription());
         values.put(Album.CREATION_DATE, album.getCreationDate());
@@ -125,13 +127,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public boolean deleteAlbumFromDatabase(Album album) {
+    public boolean deleteAlbumFromDatabase(int albumId) {
         boolean success;
 
         SQLiteDatabase db = this.getWritableDatabase();
-        success = db.delete(Album.TABLE_NAME, Album.ALBUM_ID + "=?", new String[]{album.getAlbumId() + ""}) > 0;
+        success = db.delete(Album.TABLE_NAME, Album.ALBUM_ID + "=?", new String[]{albumId + ""}) > 0;
         if (success) {
-            AlbumModel.deleteAlbum(album.getAlbumId());
+            AlbumModel.deleteAlbum(albumId);
         }
         db.close();
         return success;

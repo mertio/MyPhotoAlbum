@@ -5,6 +5,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,23 +24,28 @@ public class AlbumView extends ConstraintLayout {
 
     public interface OnAlbumClickListener {
         void onAlbumClick(int albumId);
-        void onAlbumLongClick(boolean success);
+        void onAlbumLongClick(Album album);
     }
 
     private ImageView albumImageView;
+    private CardView albumCardView;
     private TextView albumTitleText;
     private TextView albumDescriptionText;
 
     private OnAlbumClickListener onAlbumClickListener;
 
+    private Context context;
+
     public AlbumView(Context context) {
         super(context);
+        this.context = context;
         inflate(getContext(), R.layout.album_item, this);
     }
 
     public void init(final Album album) {
 
         albumImageView = findViewById(R.id.albumImageView);
+        albumCardView = findViewById(R.id.albumCardView);
         albumTitleText = findViewById(R.id.albumTitleText);
         albumDescriptionText = findViewById(R.id.albumDescriptionText);
 
@@ -49,10 +57,10 @@ public class AlbumView extends ConstraintLayout {
 
         if(album.getAlbumImage() != null) {
             albumImageView.setImageBitmap(album.getAlbumImage());
-            albumImageView.setVisibility(VISIBLE);
+            albumCardView.setVisibility(VISIBLE);
         } else {
             albumImageView.setImageResource(R.drawable.ic_launcher_background);
-            albumImageView.setVisibility(GONE);
+            albumCardView.setVisibility(GONE);
         }
         albumTitleText.setText(album.getAlbumTitle());
         albumDescriptionText.setText(album.getAlbumDescription());
@@ -61,7 +69,9 @@ public class AlbumView extends ConstraintLayout {
         this.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                showConfirmDialogForAlbumDelete((Activity) getContext(), album);
+                //showConfirmDialogForAlbumDelete((Activity) getContext(), album);
+                onAlbumClickListener = (OnAlbumClickListener) getContext();
+                onAlbumClickListener.onAlbumLongClick(album);
                 return true;
             }
         });
@@ -74,31 +84,6 @@ public class AlbumView extends ConstraintLayout {
             }
         });
 
-    }
-
-
-    public void showConfirmDialogForAlbumDelete(Activity activity, final Album album) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Are you sure you want to delete album?");
-        // Add the buttons
-        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User clicked OK button
-                DatabaseHelper db = new DatabaseHelper(getContext());
-                boolean success = db.deleteAlbumFromDatabase(album);
-                Log.d(LOGTAG, "Album deletion success : " + success);
-                db.close();
-                onAlbumClickListener = (OnAlbumClickListener) getContext();
-                onAlbumClickListener.onAlbumLongClick(success);
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
-            }
-        });
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
 

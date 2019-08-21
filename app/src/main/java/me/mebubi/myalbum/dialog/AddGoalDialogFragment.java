@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -49,7 +48,6 @@ public class AddGoalDialogFragment extends DialogFragment {
 
     private Bitmap originalPicToUpload;
     private Bitmap picToUpload;
-
     final int PICK_IMAGE = 3;
     private Uri picUri;
 
@@ -66,14 +64,11 @@ public class AddGoalDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View v;
-
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            v = inflater.inflate(R.layout.fragment_create_edit_goal_landscape, container, false);
+            v = inflater.inflate(R.layout.fragment_add_goal_landscape, container, false);
         } else {
-            v = inflater.inflate(R.layout.fragment_create_edit_goal, container, false);
+            v = inflater.inflate(R.layout.fragment_add_goal, container, false);
         }
-
-
 
         goalImageViewEdit = v.findViewById(R.id.goalImageViewEdit);
         goalTitleEditText = v.findViewById(R.id.goalTitleEditText);

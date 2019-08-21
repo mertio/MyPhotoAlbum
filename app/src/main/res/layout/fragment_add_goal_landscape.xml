@@ -9,43 +9,45 @@
 
     <EditText
         android:id="@+id/goalTitleEditText"
-        android:layout_width="0dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="8dp"
         android:hint="goal title"
         android:singleLine="true"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/goalImageViewEdit"
-        app:layout_constraintStart_toStartOf="@+id/goalImageViewEdit"
-        app:layout_constraintTop_toBottomOf="@+id/goalImageViewEdit" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/goalImageViewEdit"
+        app:layout_constraintTop_toTopOf="@+id/goalImageViewEdit" />
 
     <EditText
         android:id="@+id/goalDescriptionEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
         android:hint="goal description"
         android:singleLine="true"
         android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@+id/goalImageViewEdit"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/goalImageViewEdit"
+        app:layout_constraintBottom_toTopOf="@+id/space2"
+        app:layout_constraintEnd_toEndOf="@+id/goalTitleEditText"
+        app:layout_constraintStart_toStartOf="@+id/goalTitleEditText"
         app:layout_constraintTop_toBottomOf="@+id/goalTitleEditText" />
 
     <ImageView
         android:id="@+id/goalImageViewEdit"
-        android:layout_width="250dp"
+        android:layout_width="220dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:adjustViewBounds="true"
         android:cropToPadding="true"
         android:scaleType="fitXY"
         android:src="@drawable/ic_photo_add"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -53,29 +55,34 @@
         android:id="@+id/addButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/colorAccent"
         android:text="Add Goal"
         android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="@+id/goalImageViewEdit"
-        app:layout_constraintStart_toStartOf="@+id/goalImageViewEdit"
-        app:layout_constraintTop_toBottomOf="@+id/goalDescriptionEditText" />
+        app:layout_constraintBottom_toTopOf="@+id/cancelButton"
+        app:layout_constraintEnd_toEndOf="@+id/goalDescriptionEditText"
+        app:layout_constraintStart_toStartOf="@+id/goalDescriptionEditText"
+        app:layout_constraintTop_toBottomOf="@+id/space2" />
 
     <Button
         android:id="@+id/cancelButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="8dp"
         android:background="@android:color/darker_gray"
         android:text="@android:string/cancel"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/goalImageViewEdit"
-        app:layout_constraintStart_toStartOf="@+id/goalImageViewEdit"
-        app:layout_constraintTop_toBottomOf="@+id/addButton" />
+        app:layout_constraintBottom_toBottomOf="@+id/goalImageViewEdit"
+        app:layout_constraintEnd_toEndOf="@+id/addButton"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/addButton" />
+
+    <Space
+        android:id="@+id/space2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/goalImageViewEdit"
+        app:layout_constraintStart_toEndOf="@+id/goalImageViewEdit"
+        app:layout_constraintTop_toTopOf="@+id/goalImageViewEdit" />
 
 </android.support.constraint.ConstraintLayout>

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.concurrent.ExecutionException;
 
@@ -22,10 +25,12 @@ import me.mebubi.myalbum.adapter.GoalAdapter;
 import me.mebubi.myalbum.database.DatabaseHelper;
 import me.mebubi.myalbum.database.model.Album;
 import me.mebubi.myalbum.database.model.Goal;
+import me.mebubi.myalbum.dialog.EditDeleteAlbumDialogFragment;
 import me.mebubi.myalbum.model.AlbumModel;
 import me.mebubi.myalbum.model.GoalModel;
+import me.mebubi.myalbum.view.AlbumView;
 
-public class AlbumListActivity extends AppCompatActivity {
+public class AlbumListActivity extends AppCompatActivity implements AlbumView.OnAlbumClickListener, EditDeleteAlbumDialogFragment.OnDeleteAlbumListener {
 
     private static final String LOGTAG = "AlbumListActivity";
 
@@ -46,17 +51,16 @@ public class AlbumListActivity extends AppCompatActivity {
         initialize();
         setOnClickMethods();
 
-
-        // TEST
         try {
-            new AddAlbumTask(new Album(null, "Test Album","description")).execute().get();
-            new AddAlbumTask(new Album(null, "Test Album","description")).execute().get();
-            new AddAlbumTask(new Album(null, "Test Album","description")).execute().get();
+            new AddAlbumTask(new Album(null, "title", "desc")).execute().get();
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        new LoadDatabaseTask(true, null).execute();
+
 
     }
 
@@ -132,6 +136,36 @@ public class AlbumListActivity extends AppCompatActivity {
         albumRecyclerView.setVisibility(View.VISIBLE);
         addAlbumButton.show();
         albumProgressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onAlbumClick(int albumId) {
+
+    }
+
+    @Override
+    public void onAlbumLongClick(Album album) {
+        /*
+        // called when ok clicked in dialog
+        if (success) {
+            albumAdapter.notifyDataSetChanged();
+        } else {
+            Toast.makeText(getApplicationContext(), "Delete unsuccessful", Toast.LENGTH_LONG).show();
+        }
+        */
+        FragmentManager fm = getSupportFragmentManager();
+        DialogFragment dialogFragment = EditDeleteAlbumDialogFragment.getInstance(album.getAlbumImage(), album.getAlbumTitle(), album.getAlbumDescription(), album.getAlbumId());
+        dialogFragment.show(fm, "editdeletealbumdialog");
+    }
+
+    @Override
+    public void onDeleteAlbum(boolean success) {
+        // called when ok clicked in dialog
+        if (success) {
+            albumAdapter.notifyDataSetChanged();
+        } else {
+            Toast.makeText(getApplicationContext(), "Delete unsuccessful", Toast.LENGTH_LONG).show();
+        }
     }
 
     private class LoadDatabaseTask extends AsyncTask {
