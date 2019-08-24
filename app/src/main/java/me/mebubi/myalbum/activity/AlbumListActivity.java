@@ -1,12 +1,15 @@
 package me.mebubi.myalbum.activity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -25,12 +28,13 @@ import me.mebubi.myalbum.adapter.GoalAdapter;
 import me.mebubi.myalbum.database.DatabaseHelper;
 import me.mebubi.myalbum.database.model.Album;
 import me.mebubi.myalbum.database.model.Goal;
+import me.mebubi.myalbum.dialog.AddAlbumDialogFragment;
 import me.mebubi.myalbum.dialog.EditDeleteAlbumDialogFragment;
 import me.mebubi.myalbum.model.AlbumModel;
 import me.mebubi.myalbum.model.GoalModel;
 import me.mebubi.myalbum.view.AlbumView;
 
-public class AlbumListActivity extends AppCompatActivity implements AlbumView.OnAlbumClickListener, EditDeleteAlbumDialogFragment.OnDeleteAlbumListener {
+public class AlbumListActivity extends AppCompatActivity implements AlbumView.OnAlbumClickListener, EditDeleteAlbumDialogFragment.OnDeleteAlbumListener, AddAlbumDialogFragment.OnAddAlbumListener {
 
     private static final String LOGTAG = "AlbumListActivity";
 
@@ -51,15 +55,7 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         initialize();
         setOnClickMethods();
 
-        try {
-            new AddAlbumTask(new Album(null, "title", "desc")).execute().get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        new LoadDatabaseTask(true, null).execute();
+        //new LoadDatabaseTask(true, null).execute();
 
 
     }
@@ -90,7 +86,10 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         addAlbumButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                FragmentManager fm = getSupportFragmentManager();
+                DialogFragment dialogFragment = AddAlbumDialogFragment.getInstance();
+                dialogFragment.setCancelable(false);
+                dialogFragment.show(fm, "addAlbumDialog");
             }
         });
 
@@ -140,22 +139,21 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
 
     @Override
     public void onAlbumClick(int albumId) {
+        boolean success = db.updateLastOpenedDateOfAlbum(albumId);
+        Intent intent = new Intent(AlbumListActivity.this, PhotoActivity.class);
+        intent.putExtra("albumId", albumId);
+        startActivity(intent);
+        if (success) {
 
+        }
     }
 
     @Override
     public void onAlbumLongClick(Album album) {
-        /*
-        // called when ok clicked in dialog
-        if (success) {
-            albumAdapter.notifyDataSetChanged();
-        } else {
-            Toast.makeText(getApplicationContext(), "Delete unsuccessful", Toast.LENGTH_LONG).show();
-        }
-        */
         FragmentManager fm = getSupportFragmentManager();
         DialogFragment dialogFragment = EditDeleteAlbumDialogFragment.getInstance(album.getAlbumImage(), album.getAlbumTitle(), album.getAlbumDescription(), album.getAlbumId());
-        dialogFragment.show(fm, "editdeletealbumdialog");
+        dialogFragment.setCancelable(false);
+        dialogFragment.show(fm, "editDeleteAlbumDialog");
     }
 
     @Override
@@ -165,6 +163,27 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
             albumAdapter.notifyDataSetChanged();
         } else {
             Toast.makeText(getApplicationContext(), "Delete unsuccessful", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onEditAlbum(boolean success) {
+        // called when edit button clicked in dialog
+        if (success) {
+            albumRecyclerView.scrollToPosition(0);
+            new LoadDatabaseTask(true, null).execute();
+        } else {
+            Toast.makeText(getApplicationContext(), "Edit unsuccessful", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onAddAlbum(Album album) {
+        try {
+            new AddAlbumTask(album).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Add unsuccessful", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -194,7 +213,7 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
                 success = db.loadAlbumsFromDatabase(0, clearAndLoad);
                 return null;
             }
-            success = db.loadAlbumsFromDatabase(albumAdapter.getAlbumList().get(albumAdapter.getItemCount() - 1).getCreationDate(), clearAndLoad);
+            success = db.loadAlbumsFromDatabase(albumAdapter.getAlbumList().get(albumAdapter.getItemCount() - 1).getLastOpenedDate(), clearAndLoad);
             db.close();
             return null;
         }
@@ -207,6 +226,15 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
                 albumAdapter.notifyDataSetChanged();
             }
             lock = false;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            fragment.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -238,7 +266,8 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            albumAdapter.notifyDataSetChanged();
+            albumRecyclerView.scrollToPosition(0);
+            new LoadDatabaseTask(true, null).execute();
             // hide loading bar
             hideProgressBar();
             db.close();
@@ -251,6 +280,10 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         db.close();
     }
 
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        albumRecyclerView.scrollToPosition(0);
+        new LoadDatabaseTask(true, null).execute();
+    }
 }

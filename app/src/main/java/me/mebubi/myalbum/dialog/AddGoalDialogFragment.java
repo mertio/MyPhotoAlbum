@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import me.mebubi.myalbum.R;
 import me.mebubi.myalbum.database.model.Goal;
+import me.mebubi.myalbum.utility.ImageUtility;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -46,15 +47,19 @@ public class AddGoalDialogFragment extends DialogFragment {
     private Button addButton;
     private Button cancelButton;
 
+    private int albumId;
+
     private Bitmap originalPicToUpload;
     private Bitmap picToUpload;
     final int PICK_IMAGE = 3;
     private Uri picUri;
 
 
-    public static AddGoalDialogFragment getInstance() {
+    public static AddGoalDialogFragment getInstance(int albumId) {
         AddGoalDialogFragment addGoalDialogFragment = new AddGoalDialogFragment();
-
+        Bundle args = new Bundle();
+        args.putInt("albumId", albumId);
+        addGoalDialogFragment.setArguments(args);
         return addGoalDialogFragment;
     }
 
@@ -69,6 +74,8 @@ public class AddGoalDialogFragment extends DialogFragment {
         } else {
             v = inflater.inflate(R.layout.fragment_add_goal, container, false);
         }
+
+        albumId = getArguments().getInt("albumId");
 
         goalImageViewEdit = v.findViewById(R.id.goalImageViewEdit);
         goalTitleEditText = v.findViewById(R.id.goalTitleEditText);
@@ -89,7 +96,7 @@ public class AddGoalDialogFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
 
-                Goal goal = new Goal(originalPicToUpload, picToUpload, goalTitleEditText.getText().toString(), goalDescriptionEditText.getText().toString());
+                Goal goal = new Goal(originalPicToUpload, picToUpload, goalTitleEditText.getText().toString(), goalDescriptionEditText.getText().toString(), albumId);
                 if(!inputIsValid(goal)) {
                     return;
                 }
@@ -139,47 +146,17 @@ public class AddGoalDialogFragment extends DialogFragment {
 
 
     private boolean inputIsValid(Goal goal) {
-
         if (goal.getTitle().equals("")) {
             Toast.makeText(getContext(), "Title is empty", Toast.LENGTH_LONG).show();
             return false;
         }
-
-        /*
         if (goal.getImage() == null) {
-            Toast.makeText(getContext(), "No image uploaded!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "No image uploaded", Toast.LENGTH_LONG).show();
             return false;
         }
-        */
-
-
         return true;
     }
 
-
-    // https://stackoverflow.com/questions/10773511/how-to-resize-an-image-i-picked-from-the-gallery-in-android
-    private Bitmap decodeUri(Context c, Uri uri, final int requiredSize)
-            throws FileNotFoundException {
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(c.getContentResolver().openInputStream(uri), null, o);
-
-        int width_tmp = o.outWidth
-                , height_tmp = o.outHeight;
-        int scale = 1;
-
-        while(true) {
-            if(width_tmp / 2 < requiredSize || height_tmp / 2 < requiredSize)
-                break;
-            width_tmp /= 2;
-            height_tmp /= 2;
-            scale *= 2;
-        }
-
-        BitmapFactory.Options o2 = new BitmapFactory.Options();
-        o2.inSampleSize = scale;
-        return BitmapFactory.decodeStream(c.getContentResolver().openInputStream(uri), null, o2);
-    }
 
 
     @Override
@@ -193,7 +170,7 @@ public class AddGoalDialogFragment extends DialogFragment {
 
                 try {
                     //originalPicToUpload = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), picUri);
-                    originalPicToUpload = decodeUri(getContext(), picUri, 600);
+                    originalPicToUpload = ImageUtility.decodeUri(getContext(), picUri, 600);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -212,7 +189,7 @@ public class AddGoalDialogFragment extends DialogFragment {
                 picUri = result.getUri();
 
                 try {
-                    Bitmap largePic = decodeUri(getContext(), picUri, 300);
+                    Bitmap largePic = ImageUtility.decodeUri(getContext(), picUri, 300);
 
                     Log.d(LOGTAG, "Image upload method : image : " + largePic);
                     // TODO upload them as jpg

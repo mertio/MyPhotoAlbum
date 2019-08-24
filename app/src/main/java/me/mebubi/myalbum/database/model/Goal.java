@@ -13,6 +13,7 @@ public class Goal {
     public static final String TITLE = "title";
     public static final String DESCRIPTION = "description";
     public static final String CREATION_DATE = "creationDate";
+    public static final String ALBUM_ID = "albumId";
 
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
@@ -21,7 +22,8 @@ public class Goal {
                     + IMAGE_FILE + " BLOB,"
                     + TITLE + " TEXT,"
                     + DESCRIPTION + " TEXT,"
-                    + CREATION_DATE + " BIGINT"
+                    + CREATION_DATE + " BIGINT,"
+                    + ALBUM_ID + " INT"
                     + ")";
 
     private int goalId;
@@ -30,25 +32,28 @@ public class Goal {
     private String title;
     private String description;
     private long creationDate;
+    private int albumId;
 
     public Goal() {
     }
 
-    public Goal(Bitmap originalImage, Bitmap image, String title, String description) {
+    public Goal(Bitmap originalImage, Bitmap image, String title, String description, int albumId) {
         this.originalImage = originalImage;
         this.image = image;
         this.title = title;
         this.description = description;
         this.creationDate = System.currentTimeMillis();
+        this.albumId = albumId;
     }
 
-    public Goal(int goalId, Bitmap originalImage, Bitmap image, String title, String description, long creationDate) {
+    public Goal(int goalId, Bitmap originalImage, Bitmap image, String title, String description, long creationDate, int albumId) {
         this.goalId = goalId;
         this.originalImage = originalImage;
         this.image = image;
         this.title = title;
         this.description = description;
         this.creationDate = creationDate;
+        this.albumId = albumId;
     }
 
     public int getGoalId() {
@@ -99,12 +104,22 @@ public class Goal {
         this.creationDate = creationDate;
     }
 
+    public int getAlbumId() {
+        return albumId;
+    }
+
+    public void setAlbumId(int albumId) {
+        this.albumId = albumId;
+    }
+
     @Override
     public String toString() {
         return "Goal{" +
-                "image=" + image +
+                "goalId=" + goalId +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
+                ", creationDate=" + creationDate +
+                ", albumId=" + albumId +
                 '}';
     }
 }

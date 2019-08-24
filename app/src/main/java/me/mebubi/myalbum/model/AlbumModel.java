@@ -37,6 +37,21 @@ public class AlbumModel {
         }
     }
 
+    public static void editAlbum(Album album) {
+        synchronized (albums) {
+            for (int i = 0; i < albums.size(); i++) {
+                if(albums.get(i).getAlbumId() == album.getAlbumId()) {
+                    AlbumModel.getAlbums().get(i).setAlbumImage(album.getAlbumImage());
+                    AlbumModel.getAlbums().get(i).setAlbumTitle(album.getAlbumTitle());
+                    AlbumModel.getAlbums().get(i).setAlbumDescription(album.getAlbumDescription());
+                    AlbumModel.getAlbums().get(i).setCreationDate(album.getCreationDate());
+                    AlbumModel.getAlbums().get(i).setLastOpenedDate(album.getLastOpenedDate());
+                }
+            }
+        }
+    }
+
+
     public static void clearAlbums() {
         synchronized (albums) {
             albums.clear();

@@ -55,7 +55,6 @@
         android:id="@+id/goalImageViewEdit"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:adjustViewBounds="true"
         android:cropToPadding="true"
         android:scaleType="fitXY"
@@ -63,6 +62,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/photoAddImage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.3"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="@+id/goalImageViewEdit"
+        app:layout_constraintEnd_toEndOf="@+id/goalImageViewEdit"
+        app:layout_constraintStart_toStartOf="@+id/goalImageViewEdit"
+        app:layout_constraintTop_toTopOf="@+id/goalImageViewEdit"
+        app:srcCompat="@drawable/ic_photo_add_white" />
+
+    <TextView
+        android:id="@+id/removeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Remove Photo"
+        android:textColor="@android:color/holo_red_dark"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/goalImageViewEdit"
+        app:layout_constraintTop_toTopOf="@+id/goalImageViewEdit" />
 
     <Button
         android:id="@+id/addButton"

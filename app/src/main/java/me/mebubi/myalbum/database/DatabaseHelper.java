@@ -21,6 +21,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 import me.mebubi.myalbum.R;
 import me.mebubi.myalbum.database.model.Album;
@@ -40,7 +42,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Database Name
     private static final String DATABASE_NAME = "goal_db";
     // Pagination item count to load at a time
-    private static final int ITEM_COUNT_TO_LOAD_EACH_TIME = 12;
+    private static final int ITEM_COUNT_TO_LOAD_EACH_TIME = 20;
 
     private Context context;
 
@@ -85,7 +87,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if(cursor.moveToFirst()) {
             album.setAlbumId(cursor.getInt(0));
         }
-        AlbumModel.addAlbum(album);
+        //AlbumModel.addAlbum(album);
         db.close();
 
     }
@@ -108,6 +110,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Goal.TITLE, goal.getTitle());
         values.put(Goal.DESCRIPTION, goal.getDescription());
         values.put(Goal.CREATION_DATE, goal.getCreationDate());
+        values.put(Goal.ALBUM_ID, goal.getAlbumId());
 
         db.insert(Goal.TABLE_NAME, null, values);
         String lastRowIdQuery = "SELECT last_insert_rowid() FROM " + Goal.TABLE_NAME;
@@ -129,13 +132,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean deleteAlbumFromDatabase(int albumId) {
         boolean success;
+        List<Long> creationDatesOfPhotosInAlbum = new ArrayList<>();
 
         SQLiteDatabase db = this.getWritableDatabase();
+        // TODO HERE delete all goals associated with album
+        Cursor cursor = db.rawQuery("SELECT " + Goal.CREATION_DATE + " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.ALBUM_ID + " = " + albumId, null);
+
+        if(cursor.moveToFirst()) {
+            do {
+                creationDatesOfPhotosInAlbum.add(cursor.getLong(cursor.getColumnIndex(Goal.CREATION_DATE)));
+            } while (cursor.moveToNext());
+        }
+
+        for (int i = 0; i < creationDatesOfPhotosInAlbum.size(); i++) {
+            deleteImageFromStorage(creationDatesOfPhotosInAlbum.get(i) + ".jpg");
+        }
+
         success = db.delete(Album.TABLE_NAME, Album.ALBUM_ID + "=?", new String[]{albumId + ""}) > 0;
+        db.close();
+
         if (success) {
             AlbumModel.deleteAlbum(albumId);
         }
+
+        return success;
+    }
+
+    public boolean editAlbumInDatabase(Album album) {
+        boolean success;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        if (album.getAlbumImage() != null) {
+            values.put(Album.ALBUM_IMAGE, DbBitmapUtility.getBytes(album.getAlbumImage()));
+        } else {
+            values.putNull(Album.ALBUM_IMAGE);
+        }
+        values.put(Album.ALBUM_TITLE, album.getAlbumTitle());
+        values.put(Album.ALBUM_DESCRIPTION, album.getAlbumDescription());
+        values.put(Album.CREATION_DATE, album.getCreationDate());
+        values.put(Album.LAST_OPENED_DATE, album.getLastOpenedDate());
+
+        success = db.update(Album.TABLE_NAME, values, Album.ALBUM_ID + " =?", new String[]{album.getAlbumId() + ""}) > 0;
         db.close();
+
+        if (success) {
+            AlbumModel.editAlbum(album);
+        }
+
         return success;
     }
 
@@ -159,17 +203,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return success;
     }
 
-    public boolean loadAlbumsFromDatabase(long createdDateOfLastAlbum, boolean clearAndLoad) {
+    public boolean loadAlbumsFromDatabase(long lastOpenedDateOfLastAlbum, boolean clearAndLoad) {
         if(clearAndLoad) {
             AlbumModel.clearAlbums();
-            createdDateOfLastAlbum = Long.MAX_VALUE;
+            lastOpenedDateOfLastAlbum = Long.MAX_VALUE;
         }
 
-        Log.d(LOGTAG, "Loading " + ITEM_COUNT_TO_LOAD_EACH_TIME + " items from a list starting from album creation date of " + createdDateOfLastAlbum);
+        Log.d(LOGTAG, "Loading " + ITEM_COUNT_TO_LOAD_EACH_TIME + " items from a list starting from album last opened date of " + lastOpenedDateOfLastAlbum);
 
         String selectQuery = "SELECT " + Album.ALBUM_ID + ", " + Album.ALBUM_IMAGE + ", " + Album.ALBUM_TITLE + ", " + Album.ALBUM_DESCRIPTION + ", " + Album.CREATION_DATE + ", " + Album.LAST_OPENED_DATE +
-                " FROM " + Album.TABLE_NAME + " WHERE " + Album.CREATION_DATE + " < " + createdDateOfLastAlbum +
-                " ORDER BY " + Album.CREATION_DATE + " DESC LIMIT " + ITEM_COUNT_TO_LOAD_EACH_TIME;
+                " FROM " + Album.TABLE_NAME + " WHERE " + Album.LAST_OPENED_DATE + " < " + lastOpenedDateOfLastAlbum +
+                " ORDER BY " + Album.LAST_OPENED_DATE + " DESC LIMIT " + ITEM_COUNT_TO_LOAD_EACH_TIME;
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -201,7 +245,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-    public boolean loadGoalsFromDatabase(long createdDateOfLastItem, boolean clearAndLoad) {
+    public boolean loadGoalsFromDatabase(long createdDateOfLastItem, boolean clearAndLoad, int albumId) {
 
         if(clearAndLoad) {
             GoalModel.clearGoals();
@@ -210,8 +254,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Log.d(LOGTAG, "Loading " + ITEM_COUNT_TO_LOAD_EACH_TIME + " items from a list starting from goal creation date of " + createdDateOfLastItem);
 
-        String selectQuery = "SELECT " + Goal.GOAL_ID + ", " + Goal.IMAGE_FILE + ", " + Goal.TITLE + ", " + Goal.DESCRIPTION + ", " + Goal.CREATION_DATE +
-                " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.CREATION_DATE + " > " + createdDateOfLastItem +
+        String selectQuery = "SELECT " + Goal.GOAL_ID + ", " + Goal.IMAGE_FILE + ", " + Goal.TITLE + ", " + Goal.DESCRIPTION + ", " + Goal.CREATION_DATE + ", " + Goal.ALBUM_ID +
+                " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.ALBUM_ID + " = " + albumId + " AND " + Goal.CREATION_DATE + " > " + createdDateOfLastItem +
                 " ORDER BY " + Goal.CREATION_DATE + " ASC LIMIT " + ITEM_COUNT_TO_LOAD_EACH_TIME;
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -229,6 +273,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 goal.setTitle(cursor.getString(cursor.getColumnIndex(Goal.TITLE)));
                 goal.setDescription(cursor.getString(cursor.getColumnIndex(Goal.DESCRIPTION)));
                 goal.setCreationDate(cursor.getLong(cursor.getColumnIndex(Goal.CREATION_DATE)));
+                goal.setAlbumId(cursor.getInt(cursor.getColumnIndex(Goal.ALBUM_ID)));
 
                 GoalModel.addGoal(goal);
 
@@ -239,10 +284,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return false;
         }
         return true;
-    }
-
-    public void editAlbum() {
-        // TODO
     }
 
     private String saveToInternalSorage(Bitmap bitmapImage, String fileName) {
@@ -321,6 +362,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return false;
     }
 
+    public boolean updateLastOpenedDateOfAlbum(int albumId) {
 
+        boolean success;
+        long openedDate = System.currentTimeMillis();
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Album.LAST_OPENED_DATE, openedDate);
+        success = db.update(Album.TABLE_NAME, values, Album.ALBUM_ID + " =?", new String[]{albumId + ""}) > 0;
+        db.close();
+
+        return success;
+
+    }
 
 }

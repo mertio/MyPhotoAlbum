@@ -11,7 +11,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.AlbumListActivity"
-            android:label="@string/title_activity_album_list"
+            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:label="Albums"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".activity.PasswordActivity"
@@ -24,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".activity.PhotoActivity"
             android:configChanges="keyboardHidden|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />

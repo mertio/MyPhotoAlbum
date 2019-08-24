@@ -2,9 +2,12 @@ package me.mebubi.myalbum.dialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,13 +20,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.theartofdev.edmodo.cropper.CropImage;
+
+import java.io.FileNotFoundException;
 
 import me.mebubi.myalbum.R;
 import me.mebubi.myalbum.database.DatabaseHelper;
 import me.mebubi.myalbum.database.DbBitmapUtility;
 import me.mebubi.myalbum.database.model.Album;
 import me.mebubi.myalbum.database.model.Goal;
+import me.mebubi.myalbum.utility.ImageUtility;
 import me.mebubi.myalbum.view.AlbumView;
+
+import static android.app.Activity.RESULT_OK;
 
 public class EditDeleteAlbumDialogFragment extends DialogFragment {
 
@@ -31,6 +42,7 @@ public class EditDeleteAlbumDialogFragment extends DialogFragment {
 
     public interface OnDeleteAlbumListener {
         void onDeleteAlbum(boolean success);
+        void onEditAlbum(boolean success);
     }
 
     private OnDeleteAlbumListener onDeleteAlbumListener;
@@ -38,6 +50,7 @@ public class EditDeleteAlbumDialogFragment extends DialogFragment {
     private ImageView albumImageView;
     private TextView albumTitleText;
     private TextView albumDescriptionText;
+    private TextView photoRemoveText;
     private Button editButton;
     private Button deleteButton;
     private Button cancelButton;
@@ -47,7 +60,6 @@ public class EditDeleteAlbumDialogFragment extends DialogFragment {
     private String currentTitle;
     private String currentDescription;
 
-    private Bitmap picToUpload;
     final int PICK_IMAGE = 3;
     private Uri picUri;
 
@@ -82,16 +94,76 @@ public class EditDeleteAlbumDialogFragment extends DialogFragment {
         albumImageView = v.findViewById(R.id.goalImageViewEdit);
         albumTitleText = v.findViewById(R.id.goalTitleEditText);
         albumDescriptionText = v.findViewById(R.id.goalDescriptionEditText);
+        photoRemoveText = v.findViewById(R.id.removeText);
         editButton = v.findViewById(R.id.addButton);
         deleteButton = v.findViewById(R.id.editButton);
         cancelButton = v.findViewById(R.id.cancelButton);
 
+        photoRemoveText.setVisibility(View.GONE);
         if (currentImage != null) {
             albumImageView.setImageBitmap(currentImage);
+            photoRemoveText.setVisibility(View.VISIBLE);
         }
         albumTitleText.setText(currentTitle);
         albumDescriptionText.setText(currentDescription);
 
+        albumImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+
+                    Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                    getIntent.setType("image/*");
+
+                    Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    pickIntent.setType("image/*");
+
+                    Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+
+                    startActivityForResult(chooserIntent, PICK_IMAGE);
+                }
+                catch(ActivityNotFoundException anfe){
+                    //display an error message
+                    String errorMessage = "Whoops - your device doesn't support capturing images!";
+                    Toast toast = Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
+        });
+
+        photoRemoveText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentImage = null;
+                albumImageView.setImageResource(R.drawable.ic_photo_add);
+            }
+        });
+
+
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // currentImage updated if photo uploaded
+                currentTitle = albumTitleText.getText().toString();
+                currentDescription = albumDescriptionText.getText().toString();
+                Album album = new Album(currentAlbumId, currentImage, currentTitle, currentDescription, System.currentTimeMillis(), System.currentTimeMillis());
+                if(!inputIsValid(album)) {
+                    return;
+                }
+                DatabaseHelper db = new DatabaseHelper(getContext());
+                boolean success = db.editAlbumInDatabase(album);
+                Log.d(LOGTAG, "Album edit success : " + success);
+                db.close();
+                if (success) {
+                    dismiss();
+                } else {
+                    return;
+                }
+                onDeleteAlbumListener = (OnDeleteAlbumListener) getContext();
+                onDeleteAlbumListener.onEditAlbum(success);
+            }
+        });
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,13 +184,6 @@ public class EditDeleteAlbumDialogFragment extends DialogFragment {
     }
 
 
-
-
-
-
-
-
-
     public void showConfirmDialogForAlbumDelete(Activity activity, final int albumId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Are you sure you want to delete album?");
@@ -130,9 +195,10 @@ public class EditDeleteAlbumDialogFragment extends DialogFragment {
                 boolean success = db.deleteAlbumFromDatabase(albumId);
                 Log.d(LOGTAG, "Album deletion success : " + success);
                 db.close();
+                dismiss();
+
                 onDeleteAlbumListener = (OnDeleteAlbumListener) getContext();
                 onDeleteAlbumListener.onDeleteAlbum(success);
-                dismiss();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -144,6 +210,61 @@ public class EditDeleteAlbumDialogFragment extends DialogFragment {
         dialog.show();
     }
 
+    private boolean inputIsValid(Album album) {
+        if (album.getAlbumTitle().equals("")) {
+            Toast.makeText(getContext(), "Title is empty", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
+    }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        if(requestCode == PICK_IMAGE){
+            if (resultCode == RESULT_OK) {
+                picUri = data.getData();
+                CropImage.activity(picUri).setAspectRatio(1,1).setFixAspectRatio(true).start(getActivity());
+            }
+        }
+
+        Log.d(LOGTAG, "An activity has returned a result...");
+
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+
+                picUri = result.getUri();
+
+                try {
+                    Bitmap largePic = ImageUtility.decodeUri(getContext(), picUri, 200);
+
+                    Log.d(LOGTAG, "Image upload method : image : " + largePic);
+                    albumImageView.setImageBitmap(largePic);
+                    photoRemoveText.setVisibility(View.VISIBLE);
+                    currentImage = largePic;
+
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+                Log.d(LOGTAG, "Error occured in picture crop");
+            }
+        }
+
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        this.dismiss();
+        this.show(getFragmentManager(), "editDeleteAlbumDialog");
+    }
 
 }

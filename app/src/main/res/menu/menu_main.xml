@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="me.mebubi.myalbum.activity.MainActivity">
+    tools:context="me.mebubi.myalbum.activity.PhotoActivity">
     <item
         android:id="@+id/action_grid_span_one"
         android:orderInCategory="100"

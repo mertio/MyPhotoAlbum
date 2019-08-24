@@ -57,10 +57,8 @@ public class AlbumView extends ConstraintLayout {
 
         if(album.getAlbumImage() != null) {
             albumImageView.setImageBitmap(album.getAlbumImage());
-            albumCardView.setVisibility(VISIBLE);
         } else {
-            albumImageView.setImageResource(R.drawable.ic_launcher_background);
-            albumCardView.setVisibility(GONE);
+            albumImageView.setImageResource(R.drawable.ic_album_placeholder);
         }
         albumTitleText.setText(album.getAlbumTitle());
         albumDescriptionText.setText(album.getAlbumDescription());

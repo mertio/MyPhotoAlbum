@@ -38,9 +38,9 @@ import me.mebubi.myalbum.database.model.Goal;
 import me.mebubi.myalbum.model.GoalModel;
 import me.mebubi.myalbum.view.GoalView;
 
-public class MainActivity extends AppCompatActivity implements AddGoalDialogFragment.OnAddGoalListener, GoalView.OnGoalClickListener {
+public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFragment.OnAddGoalListener, GoalView.OnGoalClickListener {
 
-    private static final String LOGTAG = "MainActivity";
+    private static final String LOGTAG = "PhotoActivity";
 
     private ImageView fullScreenImageView;
     private ImageButton fullScreenImageCloseButton;
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements AddGoalDialogFrag
     private SharedPreferences prefs;
     private DatabaseHelper db;
 
+    private int currentAlbumId;
     private int spanCount;
     Bitmap imageToShowFullSize;
 
@@ -61,6 +62,12 @@ public class MainActivity extends AppCompatActivity implements AddGoalDialogFrag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // get albumId
+        Intent intent = getIntent();
+        currentAlbumId = intent.getIntExtra("albumId", 0);
+        Log.d(LOGTAG, "Fetched album id: " + currentAlbumId);
+
         initialize();
         setOnClickMethods();
         new LoadDatabaseTask(true, null).execute();
@@ -197,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements AddGoalDialogFrag
         addGoalButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DialogFragment dialogFragment = AddGoalDialogFragment.getInstance();
+                DialogFragment dialogFragment = AddGoalDialogFragment.getInstance(currentAlbumId);
                 dialogFragment.setCancelable(false);
                 dialogFragment.show(getSupportFragmentManager(), "addGoalDialog");
             }
@@ -291,10 +298,10 @@ public class MainActivity extends AppCompatActivity implements AddGoalDialogFrag
         @Override
         protected Object doInBackground(Object[] objects) {
             if (goalAdapter.getGoalList().isEmpty()) {
-                success = db.loadGoalsFromDatabase(0, clearAndLoad);
+                success = db.loadGoalsFromDatabase(0, clearAndLoad, currentAlbumId);
                 return null;
             }
-            success = db.loadGoalsFromDatabase(goalAdapter.getGoalList().get(goalAdapter.getItemCount() - 1).getCreationDate(), clearAndLoad);
+            success = db.loadGoalsFromDatabase(goalAdapter.getGoalList().get(goalAdapter.getItemCount() - 1).getCreationDate(), clearAndLoad, currentAlbumId);
             db.close();
             return null;
         }
