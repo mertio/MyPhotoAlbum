@@ -5,12 +5,12 @@
     <item
         android:id="@+id/action_sort_asc"
         android:orderInCategory="100"
-        android:title="Sort Ascending"
+        android:title="Least Recent"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_sort_desc"
         android:orderInCategory="100"
-        android:title="Sort Descending"
+        android:title="Most Recent"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_grid_span_one"
@@ -26,10 +26,5 @@
         android:id="@+id/action_export_album"
         android:orderInCategory="100"
         android:title="Export Album Photos"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_reset_password"
-        android:orderInCategory="100"
-        android:title="Reset Password"
         app:showAsAction="never" />
 </menu>

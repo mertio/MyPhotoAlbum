@@ -241,21 +241,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-    public boolean loadGoalsFromDatabase(long createdDateOfLastItem, boolean clearAndLoad, int albumId) {
+    public boolean loadGoalsFromDatabase(long createdDateOfLastItem, boolean clearAndLoad, int albumId, boolean sortAsc) {
 
         if(clearAndLoad) {
             GoalModel.clearGoals();
-            createdDateOfLastItem = 0;
+            if (sortAsc) {
+                createdDateOfLastItem = 0;
+            } else {
+                createdDateOfLastItem = Long.MAX_VALUE;
+            }
         }
 
         Log.d(LOGTAG, "Loading " + ITEM_COUNT_TO_LOAD_EACH_TIME + " items from a list starting from goal creation date of " + createdDateOfLastItem);
 
-        String selectQuery = "SELECT " + Goal.GOAL_ID + ", " + Goal.IMAGE_FILE + ", " + Goal.TITLE + ", " + Goal.DESCRIPTION + ", " + Goal.CREATION_DATE + ", " + Goal.ALBUM_ID +
+        String ascSelectQuery = "SELECT " + Goal.GOAL_ID + ", " + Goal.IMAGE_FILE + ", " + Goal.TITLE + ", " + Goal.DESCRIPTION + ", " + Goal.CREATION_DATE + ", " + Goal.ALBUM_ID +
                 " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.ALBUM_ID + " = " + albumId + " AND " + Goal.CREATION_DATE + " > " + createdDateOfLastItem +
                 " ORDER BY " + Goal.CREATION_DATE + " ASC LIMIT " + ITEM_COUNT_TO_LOAD_EACH_TIME;
 
+        String descSelectQuery = "SELECT " + Goal.GOAL_ID + ", " + Goal.IMAGE_FILE + ", " + Goal.TITLE + ", " + Goal.DESCRIPTION + ", " + Goal.CREATION_DATE + ", " + Goal.ALBUM_ID +
+                " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.ALBUM_ID + " = " + albumId + " AND " + Goal.CREATION_DATE + " < " + createdDateOfLastItem +
+                " ORDER BY " + Goal.CREATION_DATE + " DESC LIMIT " + ITEM_COUNT_TO_LOAD_EACH_TIME;
+
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        Cursor cursor;
+        if (sortAsc) {
+            cursor = db.rawQuery(ascSelectQuery, null);
+        } else {
+            cursor = db.rawQuery(descSelectQuery, null);
+        }
 
         if(cursor.moveToFirst()) {
 

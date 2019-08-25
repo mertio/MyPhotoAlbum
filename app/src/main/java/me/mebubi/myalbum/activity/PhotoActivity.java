@@ -35,8 +35,6 @@ import android.widget.Toast;
 
 import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;
 
-import java.util.concurrent.ExecutionException;
-
 import me.mebubi.myalbum.R;
 import me.mebubi.myalbum.adapter.GoalAdapter;
 import me.mebubi.myalbum.database.DatabaseHelper;
@@ -64,7 +62,11 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
 
     private int currentAlbumId;
     private int spanCount;
+    private boolean sortAsc;
     Bitmap imageToShowFullSize;
+
+    // state
+    private boolean fullScreenImageDisplayMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +80,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
 
         initialize();
         setOnClickMethods();
-        new LoadDatabaseTask(true, null).execute();
+        new LoadDatabaseTask(true, null, sortAsc).execute();
 
     }
 
@@ -97,9 +99,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_reset_password) {
-
-        } else if (id == R.id.action_grid_span_one) {
+        if (id == R.id.action_grid_span_one) {
             changeSpanCountOnGrid(1);
         } else if (id == R.id.action_grid_span_two) {
             changeSpanCountOnGrid(2);
@@ -110,9 +110,9 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
                 new ExportAlbumTask(currentAlbumId).execute();
             }
         } else if (id == R.id.action_sort_asc) {
-
+            setAscSort(true);
         } else if (id == R.id.action_sort_desc) {
-
+            setAscSort(false);
         }
 
         return super.onOptionsItemSelected(item);
@@ -140,6 +140,12 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
 
         // save setting
         prefs.edit().putInt("spanCount", spanCount).commit();
+    }
+
+    private void setAscSort(boolean sortAsc) {
+        this.sortAsc = sortAsc;
+        prefs.edit().putBoolean("sortAsc", sortAsc).commit();
+        new LoadDatabaseTask(true, null, sortAsc).execute();
     }
 
 
@@ -185,6 +191,8 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
     }
 
     private void enterFullScreenImageDisplayMode() {
+        fullScreenImageDisplayMode = true;
+
         getSupportActionBar().hide();
         addGoalButton.hide();
         fullScreenImageView.setVisibility(View.VISIBLE);
@@ -194,6 +202,9 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
     }
 
     private void exitFullScreenImageDisplayMode() {
+        fullScreenImageDisplayMode = false;
+
+
         getSupportActionBar().show();
         addGoalButton.show();
         fullScreenImageView.setVisibility(View.GONE);
@@ -219,6 +230,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         db = new DatabaseHelper(getApplicationContext());
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         spanCount = prefs.getInt("spanCount", 1);
+        sortAsc = prefs.getBoolean("sortAsc", true);
 
         // recyclerview initialization
         goalAdapter = new GoalAdapter(GoalModel.getGoals(), this);
@@ -282,7 +294,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
                     //show your loading view
                     // load content in background
 
-                    new LoadDatabaseTask(false, loading).execute();
+                    new LoadDatabaseTask(false, loading, sortAsc).execute();
 
                     //loading = false;
                 }
@@ -363,11 +375,13 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         private boolean clearAndLoad;
         private boolean success;
         private Boolean lock;
+        private boolean sortAsc;
 
-        LoadDatabaseTask(boolean clearAndLoad, Boolean lock) {
+        LoadDatabaseTask(boolean clearAndLoad, Boolean lock, boolean sortAsc) {
             this.clearAndLoad = clearAndLoad;
             this.success = false;
             this.lock = lock;
+            this.sortAsc = sortAsc;
         }
 
         @Override
@@ -380,10 +394,10 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         @Override
         protected Object doInBackground(Object[] objects) {
             if (goalAdapter.getGoalList().isEmpty()) {
-                success = db.loadGoalsFromDatabase(0, clearAndLoad, currentAlbumId);
+                success = db.loadGoalsFromDatabase(0, clearAndLoad, currentAlbumId, sortAsc);
                 return null;
             }
-            success = db.loadGoalsFromDatabase(goalAdapter.getGoalList().get(goalAdapter.getItemCount() - 1).getCreationDate(), clearAndLoad, currentAlbumId);
+            success = db.loadGoalsFromDatabase(goalAdapter.getGoalList().get(goalAdapter.getItemCount() - 1).getCreationDate(), clearAndLoad, currentAlbumId, sortAsc);
             db.close();
             return null;
         }
@@ -509,5 +523,14 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
     protected void onDestroy() {
         super.onDestroy();
         db.close();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (fullScreenImageDisplayMode) {
+            exitFullScreenImageDisplayMode();
+        } else {
+            super.onBackPressed();
+        }
     }
 }

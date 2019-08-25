@@ -1,6 +1,8 @@
 package me.mebubi.myalbum.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,12 +10,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import me.mebubi.myalbum.R;
+import me.mebubi.myalbum.utility.HashFunctions;
 
 public class PasswordActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String LOGTAG = "PasswordActivity";
+
+    private TextView passwordHeader;
 
     private Button zeroButton;
     private Button oneButton;
@@ -35,13 +42,21 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
     private ImageView star3;
     private ImageView star4;
 
-    private char[] password;
+    StringBuilder passwordBuilder;
     private int currentIndex = 0;
+
+    SharedPreferences prefs;
+    private String hashOfPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_password);
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        hashOfPassword = prefs.getString("hashOfPassword", "");
+
+        passwordHeader = findViewById(R.id.passwordHeader);
 
         zeroButton = findViewById(R.id.zeroButton);
         zeroButton.setOnClickListener(this);
@@ -89,7 +104,20 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
         star3 = findViewById(R.id.star3);
         star4 = findViewById(R.id.star4);
 
-        password = new char[4];
+        passwordBuilder = new StringBuilder();
+
+
+        // set up
+        if (hashOfPassword.equals("")) {
+            openAlbumButton.setText("Set a password");
+            passwordHeader.setText("Set a password");
+        } else {
+            openAlbumButton.setText("Open");
+            passwordHeader.setText("Enter your password");
+        }
+
+
+
 
     }
 
@@ -98,7 +126,7 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View view) {
 
         if (view.getId() == R.id.clearButton) {
-            password = new char[4];
+            passwordBuilder = new StringBuilder();
             currentIndex = 0;
 
             // ui update
@@ -108,15 +136,32 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
         if (view.getId() == R.id.backspaceButton) {
             if(currentIndex > 0) {
                 currentIndex--;
+                passwordBuilder.replace(currentIndex,currentIndex + 1, "");
             }
             // ui update
             passwordUiUpdate(currentIndex);
         }
 
         if (view.getId() == R.id.openAlbumButton) {
-            Intent intent = new Intent(PasswordActivity.this, AlbumListActivity.class);
-            startActivity(intent);
-            finish();
+
+            // check if password valid
+            if (passwordBuilder.length() == 4) {
+                if (hashOfPassword.equals("")) {
+                    prefs.edit().putString("hashOfPassword", HashFunctions.md5(passwordBuilder.toString())).commit();
+                    goToAlbums();
+                } else {
+                    if (HashFunctions.md5(passwordBuilder.toString()).equals(hashOfPassword)) {
+                        goToAlbums();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Wrong password!", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "Password must be 4 digits", Toast.LENGTH_LONG).show();
+                return;
+            }
+
         }
 
         if (view.getId() == R.id.zeroButton ||
@@ -132,16 +177,19 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
 
             // add to char array
             if(currentIndex < 4) {
-                password[currentIndex] = ((Button) findViewById(view.getId())).getText().toString().charAt(0);
+                passwordBuilder.append(((Button) findViewById(view.getId())).getText().toString().charAt(0));
                 currentIndex++;
                 // ui update
                 passwordUiUpdate(currentIndex);
             }
         }
 
-        Log.d(LOGTAG, "On click method entered, current index: " + currentIndex);
+    }
 
-
+    private void goToAlbums() {
+        Intent intent = new Intent(PasswordActivity.this, AlbumListActivity.class);
+        startActivity(intent);
+        finish();
     }
 
 
@@ -161,8 +209,6 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
         } if (numOfStarsToLightUp >= 4) {
             star4.setImageResource(R.drawable.ic_full_star);
         }
-
-        Log.d(LOGTAG, "Current password : " + password[0] + password[1] + password[2] + password[3]);
 
     }
 

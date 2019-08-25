@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="me.mebubi.myalbum.activity.PhotoActivity">
+    <item
+        android:id="@+id/action_reset_password"
+        android:orderInCategory="100"
+        android:title="Reset Password"
+        app:showAsAction="never" />
+</menu>
