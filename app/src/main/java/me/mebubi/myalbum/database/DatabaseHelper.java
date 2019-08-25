@@ -3,12 +3,15 @@ package me.mebubi.myalbum.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -132,22 +135,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean deleteAlbumFromDatabase(int albumId) {
         boolean success;
-        List<Long> creationDatesOfPhotosInAlbum = new ArrayList<>();
 
         SQLiteDatabase db = this.getWritableDatabase();
-        // TODO HERE delete all goals associated with album
-        Cursor cursor = db.rawQuery("SELECT " + Goal.CREATION_DATE + " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.ALBUM_ID + " = " + albumId, null);
-
+        Cursor cursor = db.rawQuery("SELECT " + Goal.GOAL_ID + ", " + Goal.CREATION_DATE + " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.ALBUM_ID + " = " + albumId, null);
         if(cursor.moveToFirst()) {
             do {
-                creationDatesOfPhotosInAlbum.add(cursor.getLong(cursor.getColumnIndex(Goal.CREATION_DATE)));
+                Goal goal = new Goal();
+                goal.setGoalId(cursor.getInt(cursor.getColumnIndex(Goal.GOAL_ID)));
+                goal.setCreationDate(cursor.getLong(cursor.getColumnIndex(Goal.CREATION_DATE)));
+                deleteGoalFromDatabase(goal);
             } while (cursor.moveToNext());
         }
+        db.close();
 
-        for (int i = 0; i < creationDatesOfPhotosInAlbum.size(); i++) {
-            deleteImageFromStorage(creationDatesOfPhotosInAlbum.get(i) + ".jpg");
-        }
-
+        db = this.getWritableDatabase();
         success = db.delete(Album.TABLE_NAME, Album.ALBUM_ID + "=?", new String[]{albumId + ""}) > 0;
         db.close();
 
@@ -187,12 +188,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean deleteGoalFromDatabase(Goal goal) {
         boolean success;
-        if (goal.getImage() != null) {
-            success = deleteImageFromStorage(goal.getCreationDate() + ".jpg");
-            if (!success) {
-                return success;
-            }
-        }
+        success = deleteImageFromStorage(goal.getCreationDate() + ".jpg");
 
         SQLiteDatabase db = this.getWritableDatabase();
         success = db.delete(Goal.TABLE_NAME, Goal.GOAL_ID + "=?", new String[]{goal.getGoalId() + ""}) > 0;
@@ -374,6 +370,60 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return success;
 
+    }
+
+    public boolean exportAlbumPhotos(int albumId) {
+        List<Long> goalCreationDateList = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + Goal.CREATION_DATE + " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.ALBUM_ID + " = " + albumId, null);
+        if(cursor.moveToFirst()) {
+            do {
+                goalCreationDateList.add(cursor.getLong(cursor.getColumnIndex(Goal.CREATION_DATE)));
+            } while (cursor.moveToNext());
+        }
+        db.close();
+
+        // now export them each individually to external storage
+        for (int i = 0; i < goalCreationDateList.size(); i++) {
+            Bitmap picToExport = loadImageFromStorage(goalCreationDateList.get(i) + ".jpg");
+            exportImageToExternalStorage(picToExport, goalCreationDateList.get(i));
+        }
+        return true;
+    }
+
+    public boolean exportSingleImage(Bitmap picToExport) {
+        exportImageToExternalStorage(picToExport, System.currentTimeMillis());
+        return true;
+    }
+
+    private void exportImageToExternalStorage(Bitmap image, long creationDate) {
+
+            String root = Environment.getExternalStorageDirectory().toString();
+            File myDir = new File(root + "/my_albums_exported_images");
+            myDir.mkdirs();
+            String fname = "image-"+ creationDate +".jpg";
+            File file = new File (myDir, fname);
+            if (file.exists ()) file.delete();
+            try {
+                FileOutputStream out = new FileOutputStream(file);
+                image.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                // record them to gallery
+                addPicsToGallery(context, file);
+                out.flush();
+                out.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+    }
+
+    private static void addPicsToGallery(Context context, File f) {
+        Log.d(LOGTAG, "Entered add pics to gallery method");
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        context.sendBroadcast(mediaScanIntent);
     }
 
 }

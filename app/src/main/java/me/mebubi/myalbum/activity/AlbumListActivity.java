@@ -16,6 +16,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -101,7 +103,7 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
 
                 Boolean loading = false;
 
-                final int visibleThreshold = 4;
+                final int visibleThreshold = 5;
 
                 GridLayoutManager layoutManager = (GridLayoutManager)albumRecyclerView.getLayoutManager();
                 int lastItem  = layoutManager.findLastCompletelyVisibleItemPosition();
@@ -161,6 +163,7 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         // called when ok clicked in dialog
         if (success) {
             albumAdapter.notifyDataSetChanged();
+            Toast.makeText(getApplicationContext(), "Album deleted!", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "Delete unsuccessful", Toast.LENGTH_LONG).show();
         }
@@ -258,7 +261,6 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
 
         @Override
         protected Object doInBackground(Object[] objects) {
-            Log.d(LOGTAG, "Album to add : " + album);
             db.insertAlbumIntoDatabase(album);
             return null;
         }

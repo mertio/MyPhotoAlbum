@@ -1,7 +1,12 @@
 package me.mebubi.myalbum.activity;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -10,8 +15,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,6 +51,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
 
     private ImageView fullScreenImageView;
     private ImageButton fullScreenImageCloseButton;
+    private ImageView exportImageButton;
     private FloatingActionButton addGoalButton;
     private RecyclerView goalsRecyclerView;
     private GoalAdapter goalAdapter;
@@ -89,15 +97,38 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_reset_password) {
+
         } else if (id == R.id.action_grid_span_one) {
             changeSpanCountOnGrid(1);
         } else if (id == R.id.action_grid_span_two) {
             changeSpanCountOnGrid(2);
+        } else if (id == R.id.action_export_album) {
+            if (!checkIfAlreadyhavePermission()) {
+                requestForSpecificPermission();
+            } else {
+                new ExportAlbumTask(currentAlbumId).execute();
+            }
+        } else if (id == R.id.action_sort_asc) {
+
+        } else if (id == R.id.action_sort_desc) {
+
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean checkIfAlreadyhavePermission() {
+        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void requestForSpecificPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, 101);
     }
 
 
@@ -147,6 +178,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         // called when ok clicked in dialog
         if (success) {
             goalAdapter.notifyDataSetChanged();
+            Toast.makeText(getApplicationContext(), "Photo deleted!", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "Delete unsuccessful", Toast.LENGTH_LONG).show();
         }
@@ -178,6 +210,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         goalsRecyclerView = findViewById(R.id.goalRecyclerView);
         fullScreenImageView = findViewById(R.id.fullScreenImageView);
         fullScreenImageCloseButton = findViewById(R.id.fullScreenImageCloseButton);
+        exportImageButton = findViewById(R.id.exportImageView);
         fullScreenImageView.setOnTouchListener(new ImageMatrixTouchHandler(getApplicationContext()));
         addGoalButton = findViewById(R.id.addGoalActionButton);
         goalProgressBar = findViewById(R.id.goalProgressBar);
@@ -218,6 +251,19 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
             }
         });
 
+        exportImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (imageToShowFullSize != null) {
+                    if (!checkIfAlreadyhavePermission()) {
+                        requestForSpecificPermission();
+                    } else {
+                        showConfirmDialogForExportImage(PhotoActivity.this);
+                    }
+                }
+            }
+        });
+
         goalsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -247,6 +293,25 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
 
     }
 
+    public void showConfirmDialogForExportImage(Activity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Are you sure you want to export this image?");
+        // Add the buttons
+        builder.setPositiveButton("Export", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+                new ExportImageTask(imageToShowFullSize).execute();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     private void displayProgressBar() {
         goalsRecyclerView.setVisibility(View.GONE);
         addGoalButton.hide();
@@ -272,6 +337,23 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
             //Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             //Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 101:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //granted
+
+                } else {
+                    //not granted
+                    Toast.makeText(getApplicationContext(), "To export album, please turn on the storage permission from the settings", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
@@ -317,6 +399,79 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         }
     }
 
+    private class ExportAlbumTask extends AsyncTask {
+
+        private int albumId;
+        private DatabaseHelper db;
+        private boolean success;
+
+        ExportAlbumTask(int albumId) {
+            this.success = false;
+            this.albumId = albumId;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            db = new DatabaseHelper(getApplicationContext());
+            displayProgressBar();
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+
+            success = db.exportAlbumPhotos(albumId);
+            db.close();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            if (success) {
+                goalAdapter.notifyDataSetChanged();
+                Toast.makeText(getApplicationContext(), "Export successful! Check the /my_albums_exported_images directory", Toast.LENGTH_LONG).show();
+            }
+            hideProgressBar();
+        }
+    }
+
+    private class ExportImageTask extends AsyncTask {
+
+        private Bitmap imageToExport;
+        private DatabaseHelper db;
+        private boolean success;
+
+        ExportImageTask(Bitmap imageToExport) {
+            this.success = false;
+            this.imageToExport = imageToExport;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            db = new DatabaseHelper(getApplicationContext());
+            exportImageButton.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+
+            success = db.exportSingleImage(imageToExport);
+            db.close();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            if (success) {
+                Toast.makeText(getApplicationContext(), "Export successful! Check the /my_albums_exported_images directory", Toast.LENGTH_LONG).show();
+            }
+            exportImageButton.setVisibility(View.VISIBLE);
+        }
+    }
+
     private class AddGoalTask extends AsyncTask {
 
         private DatabaseHelper db;
@@ -336,7 +491,6 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
 
         @Override
         protected Object doInBackground(Object[] objects) {
-            Log.d(LOGTAG, "Goal to add : " + goal);
             db.insertGoalIntoDatabase(goal);
             return null;
         }

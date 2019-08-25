@@ -3,6 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="me.mebubi.myalbum.activity.PhotoActivity">
     <item
+        android:id="@+id/action_sort_asc"
+        android:orderInCategory="100"
+        android:title="Sort Ascending"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_sort_desc"
+        android:orderInCategory="100"
+        android:title="Sort Descending"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_grid_span_one"
         android:orderInCategory="100"
         android:title="@string/action_grid_span_one"
@@ -13,8 +23,13 @@
         android:title="@string/action_grid_span_two"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_export_album"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="Export Album Photos"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_reset_password"
+        android:orderInCategory="100"
+        android:title="Reset Password"
         app:showAsAction="never" />
 </menu>
