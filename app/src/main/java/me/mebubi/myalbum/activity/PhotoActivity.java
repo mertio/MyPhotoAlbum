@@ -107,7 +107,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
             if (!checkIfAlreadyhavePermission()) {
                 requestForSpecificPermission();
             } else {
-                new ExportAlbumTask(currentAlbumId).execute();
+                showConfirmDialogForExportAlbum(PhotoActivity.this);
             }
         } else if (id == R.id.action_sort_asc) {
             setAscSort(true);
@@ -324,6 +324,25 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         dialog.show();
     }
 
+    public void showConfirmDialogForExportAlbum(Activity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Are you sure you want to export this album?");
+        // Add the buttons
+        builder.setPositiveButton("Export", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+                new ExportAlbumTask(currentAlbumId).execute();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     private void displayProgressBar() {
         goalsRecyclerView.setVisibility(View.GONE);
         addGoalButton.hide();
@@ -376,6 +395,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         private boolean success;
         private Boolean lock;
         private boolean sortAsc;
+        private boolean loadedAfterAdd = false;
 
         LoadDatabaseTask(boolean clearAndLoad, Boolean lock, boolean sortAsc) {
             this.clearAndLoad = clearAndLoad;
@@ -402,12 +422,25 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
             return null;
         }
 
+        public void setLoadedAfterAdd(boolean loadedAfterAdd) {
+            this.loadedAfterAdd = loadedAfterAdd;
+        }
+
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             if (success) {
                 Log.d(LOGTAG, "Goal list: " + goalAdapter.getGoalList());
                 goalAdapter.notifyDataSetChanged();
+                if(loadedAfterAdd) {
+                    if (sortAsc == false) {
+                        goalsRecyclerView.scrollToPosition(0);
+                    } else {
+                        goalsRecyclerView.scrollToPosition(goalAdapter.getItemCount() - 1);
+                    }
+                } else {
+                    goalsRecyclerView.scrollToPosition(0);
+                }
             }
             lock = false;
         }
@@ -512,9 +545,10 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            goalAdapter.notifyDataSetChanged();
-            // hide loading bar
             hideProgressBar();
+            LoadDatabaseTask task = new LoadDatabaseTask(true, null, sortAsc);
+            task.setLoadedAfterAdd(true);
+            task.execute();
             db.close();
         }
     }

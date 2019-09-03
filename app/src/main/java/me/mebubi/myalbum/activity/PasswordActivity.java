@@ -6,8 +6,10 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -37,6 +39,9 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
     private ImageButton backspaceButton;
     private Button openAlbumButton;
 
+    private EditText hintEditText;
+    private Button showHintButton;
+
     private ImageView star1;
     private ImageView star2;
     private ImageView star3;
@@ -47,6 +52,7 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
 
     SharedPreferences prefs;
     private String hashOfPassword;
+    private String hintText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +61,7 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         hashOfPassword = prefs.getString("hashOfPassword", "");
+        hintText = prefs.getString("hintText", "");
 
         passwordHeader = findViewById(R.id.passwordHeader);
 
@@ -98,6 +105,11 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
         openAlbumButton = findViewById(R.id.openAlbumButton);
         openAlbumButton.setOnClickListener(this);
 
+        hintEditText = findViewById(R.id.hintEditText);
+
+        showHintButton = findViewById(R.id.showHintButton);
+        showHintButton.setOnClickListener(this);
+
 
         star1 = findViewById(R.id.star1);
         star2 = findViewById(R.id.star2);
@@ -111,9 +123,13 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
         if (hashOfPassword.equals("")) {
             openAlbumButton.setText("Set a password");
             passwordHeader.setText("Set a password");
+            hintEditText.setVisibility(View.VISIBLE);
+            showHintButton.setVisibility(View.INVISIBLE);
         } else {
             openAlbumButton.setText("Open");
             passwordHeader.setText("Enter your password");
+            hintEditText.setVisibility(View.INVISIBLE);
+            showHintButton.setVisibility(View.VISIBLE);
         }
 
 
@@ -147,8 +163,15 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
             // check if password valid
             if (passwordBuilder.length() == 4) {
                 if (hashOfPassword.equals("")) {
-                    prefs.edit().putString("hashOfPassword", HashFunctions.md5(passwordBuilder.toString())).commit();
-                    goToAlbums();
+                    if(hintEditText.getText().toString().length() < 100) { // TODO make 100 into variable
+                        prefs.edit().putString("hashOfPassword", HashFunctions.md5(passwordBuilder.toString())).commit();
+                        prefs.edit().putString("hintText", hintEditText.getText().toString()).commit();
+                        goToAlbums();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Hint can be maximum 100 characters long!", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
                 } else {
                     if (HashFunctions.md5(passwordBuilder.toString()).equals(hashOfPassword)) {
                         goToAlbums();
@@ -181,6 +204,19 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
                 currentIndex++;
                 // ui update
                 passwordUiUpdate(currentIndex);
+            }
+        }
+
+        if (view.getId() == R.id.showHintButton) {
+            Toast toast;
+            if (hintText.equals("")) {
+                toast = Toast.makeText(getApplicationContext(), "No hint to show!", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0,250);
+                toast.show();
+            } else {
+                toast = Toast.makeText(getApplicationContext(), hintText, Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0,250);
+                toast.show();
             }
         }
 
