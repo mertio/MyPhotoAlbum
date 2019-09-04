@@ -1,5 +1,8 @@
 package me.mebubi.myalbum.activity;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -84,6 +87,10 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
             finish();
         }
 
+        if (id == R.id.action_export_all) {
+            showConfirmDialogForExportAllPhotos(AlbumListActivity.this);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -149,6 +156,25 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         });
 
 
+    }
+
+    public void showConfirmDialogForExportAllPhotos(Activity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Are you sure you want to export all of your photos?");
+        // Add the buttons
+        builder.setPositiveButton("Export", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+            new ExportAllPhotosTask().execute();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 
@@ -298,6 +324,41 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
             // hide loading bar
             hideProgressBar();
             db.close();
+        }
+    }
+
+    private class ExportAllPhotosTask extends AsyncTask {
+
+        private DatabaseHelper db;
+        private boolean success;
+
+        ExportAllPhotosTask() {
+            this.success = false;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            db = new DatabaseHelper(getApplicationContext());
+            displayProgressBar();
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+
+            success = db.exportAllImagesToGallery();
+            db.close();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            if (success) {
+                albumAdapter.notifyDataSetChanged();
+                Toast.makeText(getApplicationContext(), "Export successful! Check the /my_albums_exported_images directory", Toast.LENGTH_LONG).show();
+            }
+            hideProgressBar();
         }
     }
 

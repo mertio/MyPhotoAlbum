@@ -432,7 +432,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    private static void addPicsToGallery(Context context, File f) {
+
+    public boolean exportAllImagesToGallery() {
+
+        List<Long> goalCreationDateList = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + Goal.CREATION_DATE + " FROM " + Goal.TABLE_NAME, null);
+        if(cursor.moveToFirst()) {
+            do {
+                goalCreationDateList.add(cursor.getLong(cursor.getColumnIndex(Goal.CREATION_DATE)));
+            } while (cursor.moveToNext());
+        }
+        db.close();
+
+        // now export them each individually to external storage
+        for (int i = 0; i < goalCreationDateList.size(); i++) {
+            Bitmap picToExport = loadImageFromStorage(goalCreationDateList.get(i) + ".jpg");
+            exportImageToExternalStorage(picToExport, goalCreationDateList.get(i));
+        }
+        return true;
+
+    }
+
+
+    private void addPicsToGallery(Context context, File f) {
         Log.d(LOGTAG, "Entered add pics to gallery method");
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         Uri contentUri = Uri.fromFile(f);
