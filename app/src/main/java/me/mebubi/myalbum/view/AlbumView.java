@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -77,6 +78,7 @@ public class AlbumView extends ConstraintLayout {
         this.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
                 onAlbumClickListener = (OnAlbumClickListener) getContext();
                 onAlbumClickListener.onAlbumClick(album.getAlbumId());
             }

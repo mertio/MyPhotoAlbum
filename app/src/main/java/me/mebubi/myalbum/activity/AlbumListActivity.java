@@ -81,10 +81,7 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_reset_password) {
-            prefs.edit().putString("hashOfPassword", "").commit();
-            Intent intent = new Intent(AlbumListActivity.this, PasswordActivity.class);
-            startActivity(intent);
-            finish();
+            showConfirmDialogForResetPassword(AlbumListActivity.this);
         }
 
         if (id == R.id.action_export_all) {
@@ -166,6 +163,29 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
             new ExportAllPhotosTask().execute();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void showConfirmDialogForResetPassword(Activity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Are you sure you want to reset your password?");
+        // Add the buttons
+        builder.setPositiveButton("Reset", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+                // TODO
+                prefs.edit().putString("hashOfPassword", "").commit();
+                Intent intent = new Intent(AlbumListActivity.this, PasswordActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

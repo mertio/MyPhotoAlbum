@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -116,6 +117,9 @@ public class AddGoalDialogFragment extends DialogFragment {
         goalImageViewEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                goalImageViewEdit.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
+
 
                 try {
 

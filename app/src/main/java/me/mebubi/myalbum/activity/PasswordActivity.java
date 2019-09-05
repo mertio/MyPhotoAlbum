@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -141,6 +142,8 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View view) {
 
+        view.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.click_animation));
+
         if (view.getId() == R.id.clearButton) {
             passwordBuilder = new StringBuilder();
             currentIndex = 0;
@@ -238,12 +241,16 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
 
         if (numOfStarsToLightUp >= 1) {
             star1.setImageResource(R.drawable.ic_full_star);
+            star1.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.click_animation));
         } if (numOfStarsToLightUp >= 2) {
             star2.setImageResource(R.drawable.ic_full_star);
+            star2.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.click_animation));
         } if (numOfStarsToLightUp >= 3) {
             star3.setImageResource(R.drawable.ic_full_star);
+            star3.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.click_animation));
         } if (numOfStarsToLightUp >= 4) {
             star4.setImageResource(R.drawable.ic_full_star);
+            star4.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.click_animation));
         }
 
     }
