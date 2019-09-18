@@ -68,6 +68,7 @@ public class AlbumView extends ConstraintLayout {
         this.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+                view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
                 //showConfirmDialogForAlbumDelete((Activity) getContext(), album);
                 onAlbumClickListener = (OnAlbumClickListener) getContext();
                 onAlbumClickListener.onAlbumLongClick(album);

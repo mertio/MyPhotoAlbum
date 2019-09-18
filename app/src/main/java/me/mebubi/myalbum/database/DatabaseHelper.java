@@ -205,8 +205,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             lastOpenedDateOfLastAlbum = Long.MAX_VALUE;
         }
 
-        Log.d(LOGTAG, "Loading " + ITEM_COUNT_TO_LOAD_EACH_TIME + " items from a list starting from album last opened date of " + lastOpenedDateOfLastAlbum);
-
         String selectQuery = "SELECT " + Album.ALBUM_ID + ", " + Album.ALBUM_IMAGE + ", " + Album.ALBUM_TITLE + ", " + Album.ALBUM_DESCRIPTION + ", " + Album.CREATION_DATE + ", " + Album.LAST_OPENED_DATE +
                 " FROM " + Album.TABLE_NAME + " WHERE " + Album.LAST_OPENED_DATE + " < " + lastOpenedDateOfLastAlbum +
                 " ORDER BY " + Album.LAST_OPENED_DATE + " DESC LIMIT " + ITEM_COUNT_TO_LOAD_EACH_TIME;
@@ -251,8 +249,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 createdDateOfLastItem = Long.MAX_VALUE;
             }
         }
-
-        Log.d(LOGTAG, "Loading " + ITEM_COUNT_TO_LOAD_EACH_TIME + " items from a list starting from goal creation date of " + createdDateOfLastItem);
 
         String ascSelectQuery = "SELECT " + Goal.GOAL_ID + ", " + Goal.IMAGE_FILE + ", " + Goal.TITLE + ", " + Goal.DESCRIPTION + ", " + Goal.CREATION_DATE + ", " + Goal.ALBUM_ID +
                 " FROM " + Goal.TABLE_NAME + " WHERE " + Goal.ALBUM_ID + " = " + albumId + " AND " + Goal.CREATION_DATE + " > " + createdDateOfLastItem +
@@ -413,7 +409,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void exportImageToExternalStorage(Bitmap image, long creationDate) {
 
             String root = Environment.getExternalStorageDirectory().toString();
-            File myDir = new File(root + "/my_albums_exported_images");
+            File myDir = new File(root + "/a-and-p-exports");
             myDir.mkdirs();
             String fname = "image-"+ creationDate +".jpg";
             File file = new File (myDir, fname);
@@ -456,7 +452,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     private void addPicsToGallery(Context context, File f) {
-        Log.d(LOGTAG, "Entered add pics to gallery method");
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);

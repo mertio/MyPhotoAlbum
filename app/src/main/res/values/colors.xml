@@ -3,4 +3,10 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="mainBlueColor">#003366</color>
+    <color name="mixOfMainAndSec">#BFD0E0</color>
+    <color name="secondaryWhiteColor">#EFF7FF</color>
+    <color name="greenForHint">#4CBB17</color>
+    <color name="redForDelete">#EE3B3B</color>
+    <color name="fixedbubblecolor">#FCF3CF</color>
 </resources>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Alben &amp; Fotos</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="title_activity_album_list">AlbumListActivity</string>
+    <string name="enter_password">Passwort Eingeben</string>
+    <string name="enter_hint_to_remember">einen Hinweis eingeben</string>
+    <string name="show_hint">Hinweis Zeigen</string>
+    <string name="open_album">Album Öffnen</string>
+    <string name="photo_title">Titel des Fotos</string>
+    <string name="photo_description">Beschreibung des Fotos</string>
+    <string name="add_photo">Foto Hinzufügen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="remove_photo">Foto Entfernen</string>
+    <string name="album_title">Titel des Albums</string>
+    <string name="album_description">Beschreibung des Albums</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="delete">Löschen</string>
+    <string name="reset_password">Passwort Zurücksetzen</string>
+    <string name="export_all_photos">Alle Fotos Exportieren</string>
+    <string name="least_recent">Nach ältesten sortieren</string>
+    <string name="most_recent">Nach aktuellsten sortieren</string>
+    <string name="action_grid_span_one">x1 pro Zeile</string>
+    <string name="action_grid_span_two">x2 pro Zeile</string>
+    <string name="export_album_photos">Fotos des Albums Exportieren</string>
+    <string name="export_all_photos_are_you_sure">Sind Sie sicher, dass Sie alle Fotos exportieren möchten?</string>
+    <string name="export">Exportieren</string>
+    <string name="reset_password_are_you_sure">Sind Sie sicher, dass Sie Ihr Passwort zurücksetzen möchten?</string>
+    <string name="reset">Zurücksetzen</string>
+    <string name="album_deleted">Album gelöscht!</string>
+    <string name="delete_unsuccessful">Löschen fehlgeschlagen</string>
+    <string name="edit_unsuccessful">Bearbeiten fehlgeschlagen</string>
+    <string name="add_unsuccessful">Hinzufügen fehlgeschlagen</string>
+    <string name="export_successful">Export erfolgreich! Überprüfen Sie das Dateiverzeichnis: /a-and-p-exports</string>
+    <string name="set_a_password">Setzen Sie ein Passwort</string>
+    <string name="open">Öffnen</string>
+    <string name="enter_your_password">Geben Sie Ihr Passwort ein</string>
+    <string name="hint_max_100_chars">Der Hinweis darf höchstens 100 Zeichen lang sein!</string>
+    <string name="wrong_password">Falsches Passwort!</string>
+    <string name="password_must_be_4_digits">Das Passwort darf vier Digits sein</string>
+    <string name="no_hint_to_show">Es gibt keinen Hinweis zu zeigen!</string>
+    <string name="photo_deleted">Foto gelöscht!</string>
+    <string name="are_you_sure_export_photo">Sind Sie sicher, dass Sie dieses Foto exportieren möchten?</string>
+    <string name="are_you_sure_export_album">Sind Sie sicher, dass Sie dieses Album exportieren möchten?</string>
+    <string name="turn_on_storage_permission_to_export">Zum exportieren, schalten Sie bitte die Speichererlaubnis aus den Einstellungen ein</string>
+    <string name="add_album">Album Hinzufügen</string>
+    <string name="select_photo">Foto Auswählen</string>
+    <string name="your_device_doesnt_support_capturing_images">Entschuldigung, Ihr Gerät unterstützt nicht Bildaufnahme!</string>
+    <string name="title_is_empty">Titel ist leer</string>
+    <string name="no_image_uploaded">Kein Bild hochgeladen</string>
+    <string name="are_you_sure_delete_album">Sind Sie sicher, dass Sie dieses Album löschen möchten?</string>
+    <string name="are_you_sure_delete_photo">Sind Sie sicher, dass Sie dieses Foto löschen möchten?</string>
+    <string name="albums">Alben</string>
+    <string name="photos">Fotos</string>
+    <string name="albums_and_photos">Alben &amp; Fotos</string>
+
+</resources>

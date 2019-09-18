@@ -122,13 +122,13 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
 
         // set up
         if (hashOfPassword.equals("")) {
-            openAlbumButton.setText("Set a password");
-            passwordHeader.setText("Set a password");
+            openAlbumButton.setText(getResources().getString(R.string.set_a_password));
+            passwordHeader.setText(getResources().getString(R.string.set_a_password));
             hintEditText.setVisibility(View.VISIBLE);
             showHintButton.setVisibility(View.INVISIBLE);
         } else {
-            openAlbumButton.setText("Open");
-            passwordHeader.setText("Enter your password");
+            openAlbumButton.setText(getResources().getString(R.string.open));
+            passwordHeader.setText(getResources().getString(R.string.enter_your_password));
             hintEditText.setVisibility(View.INVISIBLE);
             showHintButton.setVisibility(View.VISIBLE);
         }
@@ -171,7 +171,7 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
                         prefs.edit().putString("hintText", hintEditText.getText().toString()).commit();
                         goToAlbums();
                     } else {
-                        Toast.makeText(getApplicationContext(), "Hint can be maximum 100 characters long!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.hint_max_100_chars), Toast.LENGTH_LONG).show();
                         return;
                     }
 
@@ -179,12 +179,12 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
                     if (HashFunctions.md5(passwordBuilder.toString()).equals(hashOfPassword)) {
                         goToAlbums();
                     } else {
-                        Toast.makeText(getApplicationContext(), "Wrong password!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.wrong_password), Toast.LENGTH_LONG).show();
                         return;
                     }
                 }
             } else {
-                Toast.makeText(getApplicationContext(), "Password must be 4 digits", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.password_must_be_4_digits), Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -213,7 +213,7 @@ public class PasswordActivity extends AppCompatActivity implements View.OnClickL
         if (view.getId() == R.id.showHintButton) {
             Toast toast;
             if (hintText.equals("")) {
-                toast = Toast.makeText(getApplicationContext(), "No hint to show!", Toast.LENGTH_LONG);
+                toast = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_hint_to_show), Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0,250);
                 toast.show();
             } else {

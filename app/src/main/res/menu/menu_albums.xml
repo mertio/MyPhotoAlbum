@@ -5,11 +5,11 @@
     <item
         android:id="@+id/action_reset_password"
         android:orderInCategory="100"
-        android:title="Reset Password"
+        android:title="@string/reset_password"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_export_all"
         android:orderInCategory="100"
-        android:title="Export All Photos"
+        android:title="@string/export_all_photos"
         app:showAsAction="never" />
 </menu>

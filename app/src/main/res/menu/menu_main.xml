@@ -5,12 +5,12 @@
     <item
         android:id="@+id/action_sort_asc"
         android:orderInCategory="100"
-        android:title="Least Recent"
+        android:title="@string/least_recent"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_sort_desc"
         android:orderInCategory="100"
-        android:title="Most Recent"
+        android:title="@string/most_recent"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_grid_span_one"
@@ -25,6 +25,6 @@
     <item
         android:id="@+id/action_export_album"
         android:orderInCategory="100"
-        android:title="Export Album Photos"
+        android:title="@string/export_album_photos"
         app:showAsAction="never" />
 </menu>

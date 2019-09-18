@@ -70,6 +70,7 @@ public class GoalView extends ConstraintLayout {
         this.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+                view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
                 showConfirmDialogForGoalDelete((Activity) getContext(), goal);
                 return true;
             }
@@ -78,6 +79,7 @@ public class GoalView extends ConstraintLayout {
         goalImage.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+                view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
                 showConfirmDialogForGoalDelete((Activity) getContext(), goal);
                 return true;
             }
@@ -86,7 +88,7 @@ public class GoalView extends ConstraintLayout {
         goalImage.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(LOGTAG, "Clicked on goal");
+                view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
                 onGoalClickListener = (OnGoalClickListener) getContext();
                 onGoalClickListener.onGoalClick(goal.getCreationDate() + ".jpg");
             }
@@ -96,20 +98,19 @@ public class GoalView extends ConstraintLayout {
 
     public void showConfirmDialogForGoalDelete(Activity activity, final Goal goal) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Are you sure you want to delete goal?");
+        builder.setTitle(getResources().getString(R.string.are_you_sure_delete_photo));
         // Add the buttons
-        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
                 DatabaseHelper db = new DatabaseHelper(getContext());
                 boolean success = db.deleteGoalFromDatabase(goal);
-                Log.d(LOGTAG, "Goal deletion success : " + success);
                 db.close();
                 onGoalClickListener = (OnGoalClickListener) getContext();
                 onGoalClickListener.onGoalLongClick(success);
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
             }

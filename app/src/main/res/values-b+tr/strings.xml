@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Albümler &amp; Resimler</string>
+    <string name="action_settings">Ayarlar</string>
+    <string name="title_activity_album_list">AlbumListActivity</string>
+    <string name="enter_password">Şifrenizi Giriniz</string>
+    <string name="enter_hint_to_remember">bir ipucu giriniz</string>
+    <string name="show_hint">İpucunu Göster</string>
+    <string name="open_album">Albümü Aç</string>
+    <string name="photo_title">resmin başlığı</string>
+    <string name="photo_description">resmin açıklaması</string>
+    <string name="add_photo">Resim Ekle</string>
+    <string name="cancel">İptal</string>
+    <string name="remove_photo">Resmi Kaldır</string>
+    <string name="album_title">albümün başlığı</string>
+    <string name="album_description">albümün açıklaması</string>
+    <string name="edit">Düzenle</string>
+    <string name="delete">Sil</string>
+    <string name="reset_password">Şifreyi Sıfırla</string>
+    <string name="export_all_photos">Bütün Resimleri Dışa Aktar</string>
+    <string name="least_recent">En eskiye göre</string>
+    <string name="most_recent">En yeniye göre</string>
+    <string name="action_grid_span_one">Satır başı x1</string>
+    <string name="action_grid_span_two">Satır başı x2</string>
+    <string name="export_album_photos">Albümü Dışa Aktar</string>
+    <string name="export_all_photos_are_you_sure">Bütün resimlerinizi dışa aktarmak istediğinize emin misiniz?</string>
+    <string name="export">Dışa Aktar</string>
+    <string name="reset_password_are_you_sure">Şifrenizi sıfırlamak istediğinize emin misiniz?</string>
+    <string name="reset">Sıfırla</string>
+    <string name="album_deleted">Albüm silindi!</string>
+    <string name="delete_unsuccessful">Silme başarısız</string>
+    <string name="edit_unsuccessful">Düzenleme başarısız</string>
+    <string name="add_unsuccessful">Ekleme başarısız</string>
+    <string name="export_successful">Resimler dışa aktarıldı! /a-and-p-exports dizinine bakınız</string>
+    <string name="set_a_password">Şifre belirle</string>
+    <string name="open">Aç</string>
+    <string name="enter_your_password">Şifrenizi giriniz</string>
+    <string name="hint_max_100_chars">İpucu en fazla 100 karakter olabilir!</string>
+    <string name="wrong_password">Yanlış şifre girdiniz!</string>
+    <string name="password_must_be_4_digits">Şifre 4 rakamlı olmalı</string>
+    <string name="no_hint_to_show">Gösterecek ipucu yok!</string>
+    <string name="photo_deleted">Resim silindi!</string>
+    <string name="are_you_sure_export_photo">Bu resmi dışa aktarmak istediğinize emin misiniz?</string>
+    <string name="are_you_sure_export_album">Bu albümdeki resimleri dışa aktarmak istediğinize emin misiniz?</string>
+    <string name="turn_on_storage_permission_to_export">Dışa aktarmak için lütfen ayarlardan depolama izni veriniz</string>
+    <string name="add_album">Albüm Ekle</string>
+    <string name="select_photo">Resim Seç</string>
+    <string name="your_device_doesnt_support_capturing_images">Maalesef cihazınız görüntü yakalama desteklemiyor!</string>
+    <string name="title_is_empty">Başlık boş olmamalı</string>
+    <string name="no_image_uploaded">Henüz bir resim eklemediniz</string>
+    <string name="are_you_sure_delete_album">Bu albümü silmek istediginize emin misiniz?</string>
+    <string name="are_you_sure_delete_photo">Bu resmi silmek istediginize emin misiniz?</string>
+    <string name="albums">Albümler</string>
+    <string name="photos">Resimler</string>
+    <string name="albums_and_photos">Albümler &amp; Resimler</string>
+
+</resources>

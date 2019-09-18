@@ -15,14 +15,15 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorAccent"
+            android:background="@color/mainBlueColor"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
 
     <include
         android:id="@+id/include"
-        layout="@layout/content_main" />
+        layout="@layout/content_main"
+        android:background="@color/secondaryWhiteColor" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addGoalActionButton"
@@ -30,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/colorAccent"
+        app:backgroundTint="@color/mainBlueColor"
         app:srcCompat="@drawable/ic_add_goal" />
 
     <ImageView
@@ -45,8 +46,8 @@
 
     <ImageButton
         android:id="@+id/fullScreenImageCloseButton"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:alpha="0.5"
         android:background="@android:color/transparent"
         android:scaleType="fitXY"

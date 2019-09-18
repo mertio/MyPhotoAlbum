@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -23,6 +24,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -55,7 +59,13 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
     private GoalAdapter goalAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private ProgressBar goalProgressBar;
+
     private Toolbar toolbar;
+
+    private MenuItem ascMenuItem;
+    private MenuItem descMenuItem;
+    private MenuItem onePerRowMenuItem;
+    private MenuItem twoPerRowMenuItem;
 
     private SharedPreferences prefs;
     private DatabaseHelper db;
@@ -76,7 +86,6 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         // get albumId
         Intent intent = getIntent();
         currentAlbumId = intent.getIntExtra("albumId", 0);
-        Log.d(LOGTAG, "Fetched album id: " + currentAlbumId);
 
         initialize();
         setOnClickMethods();
@@ -88,7 +97,49 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        spanCount = prefs.getInt("spanCount", 1);
+        sortAsc = prefs.getBoolean("sortAsc", true);
+
+        ascMenuItem = menu.findItem(R.id.action_sort_asc);
+        descMenuItem = menu.findItem(R.id.action_sort_desc);
+        onePerRowMenuItem = menu.findItem(R.id.action_grid_span_one);
+        twoPerRowMenuItem = menu.findItem(R.id.action_grid_span_two);
+
+        if (sortAsc) {
+            boldenAsc();
+        } else {
+            boldenDesc();
+        }
+
+        if (spanCount == 1) {
+            boldenOnePerRow();
+        } else {
+            boldenTwoPerRow();
+        }
+
         return true;
+    }
+
+    private void boldenAsc() {
+        ascMenuItem.setTitle(Html.fromHtml("<b>" + getResources().getString(R.string.least_recent) + "</b>"));
+        descMenuItem.setTitle(getResources().getString(R.string.most_recent));
+    }
+
+    private void boldenDesc() {
+        ascMenuItem.setTitle(getResources().getString(R.string.least_recent));
+        descMenuItem.setTitle(Html.fromHtml("<b>" + getResources().getString(R.string.most_recent) + "</b>"));
+    }
+
+    private void boldenOnePerRow() {
+        onePerRowMenuItem.setTitle(Html.fromHtml("<b>" + getResources().getString(R.string.action_grid_span_one) + "</b>"));
+        twoPerRowMenuItem.setTitle(getResources().getString(R.string.action_grid_span_two));
+    }
+
+    private void boldenTwoPerRow() {
+        onePerRowMenuItem.setTitle(getResources().getString(R.string.action_grid_span_one));
+        twoPerRowMenuItem.setTitle(Html.fromHtml("<b>" + getResources().getString(R.string.action_grid_span_two) + "</b>"));
     }
 
     @Override
@@ -101,8 +152,10 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_grid_span_one) {
             changeSpanCountOnGrid(1);
+            boldenOnePerRow();
         } else if (id == R.id.action_grid_span_two) {
             changeSpanCountOnGrid(2);
+            boldenTwoPerRow();
         } else if (id == R.id.action_export_album) {
             if (!checkIfAlreadyhavePermission()) {
                 requestForSpecificPermission();
@@ -111,8 +164,10 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
             }
         } else if (id == R.id.action_sort_asc) {
             setAscSort(true);
+            boldenAsc();
         } else if (id == R.id.action_sort_desc) {
             setAscSort(false);
+            boldenDesc();
         }
 
         return super.onOptionsItemSelected(item);
@@ -155,7 +210,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
             new AddGoalTask(goal).execute();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Add unsuccessful", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.add_unsuccessful), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -184,9 +239,9 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         // called when ok clicked in dialog
         if (success) {
             goalAdapter.notifyDataSetChanged();
-            Toast.makeText(getApplicationContext(), "Photo deleted!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.photo_deleted), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getApplicationContext(), "Delete unsuccessful", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.delete_unsuccessful), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -307,15 +362,15 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
 
     public void showConfirmDialogForExportImage(Activity activity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Are you sure you want to export this image?");
+        builder.setTitle(getResources().getString(R.string.are_you_sure_export_photo));
         // Add the buttons
-        builder.setPositiveButton("Export", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getResources().getString(R.string.export), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
                 new ExportImageTask(imageToShowFullSize).execute();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
             }
@@ -326,15 +381,15 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
 
     public void showConfirmDialogForExportAlbum(Activity activity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Are you sure you want to export this album?");
+        builder.setTitle(getResources().getString(R.string.are_you_sure_export_album));
         // Add the buttons
-        builder.setPositiveButton("Export", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getResources().getString(R.string.export), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
                 new ExportAlbumTask(currentAlbumId).execute();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
             }
@@ -380,7 +435,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
 
                 } else {
                     //not granted
-                    Toast.makeText(getApplicationContext(), "To export album, please turn on the storage permission from the settings", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.turn_on_storage_permission_to_export), Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
@@ -430,7 +485,6 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             if (success) {
-                Log.d(LOGTAG, "Goal list: " + goalAdapter.getGoalList());
                 goalAdapter.notifyDataSetChanged();
                 if(loadedAfterAdd) {
                     if (sortAsc == false) {
@@ -477,7 +531,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
             super.onPostExecute(o);
             if (success) {
                 goalAdapter.notifyDataSetChanged();
-                Toast.makeText(getApplicationContext(), "Export successful! Check the /my_albums_exported_images directory", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.export_successful), Toast.LENGTH_LONG).show();
             }
             hideProgressBar();
         }
@@ -513,7 +567,7 @@ public class PhotoActivity extends AppCompatActivity implements AddGoalDialogFra
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             if (success) {
-                Toast.makeText(getApplicationContext(), "Export successful! Check the /my_albums_exported_images directory", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.export_successful), Toast.LENGTH_LONG).show();
             }
             exportImageButton.setVisibility(View.VISIBLE);
         }

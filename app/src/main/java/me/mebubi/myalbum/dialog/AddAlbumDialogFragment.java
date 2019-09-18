@@ -69,11 +69,11 @@ public class AddAlbumDialogFragment extends DialogFragment {
 
         albumImageViewEdit = v.findViewById(R.id.goalImageViewEdit);
         albumTitleEditText = v.findViewById(R.id.goalTitleEditText);
-        albumTitleEditText.setHint("album title");
+        albumTitleEditText.setHint(getResources().getString(R.string.album_title));
         albumDescriptionEditText = v.findViewById(R.id.goalDescriptionEditText);
-        albumDescriptionEditText.setHint("album description");
+        albumDescriptionEditText.setHint(getResources().getString(R.string.album_description));
         addButton = v.findViewById(R.id.addButton);
-        addButton.setText("Add Album");
+        addButton.setText(getResources().getString(R.string.add_album));
         cancelButton = v.findViewById(R.id.cancelButton);
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
@@ -119,14 +119,14 @@ public class AddAlbumDialogFragment extends DialogFragment {
                     Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     pickIntent.setType("image/*");
 
-                    Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+                    Intent chooserIntent = Intent.createChooser(getIntent, getResources().getString(R.string.select_photo));
                     chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
 
                     startActivityForResult(chooserIntent, PICK_IMAGE);
                 }
                 catch(ActivityNotFoundException anfe){
                     //display an error message
-                    String errorMessage = "Whoops - your device doesn't support capturing images!";
+                    String errorMessage = getResources().getString(R.string.your_device_doesnt_support_capturing_images);
                     Toast toast = Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT);
                     toast.show();
                 }
@@ -141,7 +141,7 @@ public class AddAlbumDialogFragment extends DialogFragment {
 
     private boolean inputIsValid(Album album) {
         if (album.getAlbumTitle().equals("")) {
-            Toast.makeText(getContext(), "Title is empty", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getResources().getString(R.string.title_is_empty), Toast.LENGTH_LONG).show();
             return false;
         }
         return true;
@@ -160,8 +160,6 @@ public class AddAlbumDialogFragment extends DialogFragment {
             }
         }
 
-        Log.d(LOGTAG, "An activity has returned a result...");
-
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
@@ -171,7 +169,6 @@ public class AddAlbumDialogFragment extends DialogFragment {
                 try {
                     Bitmap largePic = ImageUtility.decodeUri(getContext(), picUri, 200);
 
-                    Log.d(LOGTAG, "Image upload method : image : " + largePic);
                     albumImageViewEdit.setImageBitmap(largePic);
                     picToUpload = largePic;
 
@@ -183,7 +180,6 @@ public class AddAlbumDialogFragment extends DialogFragment {
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
-                Log.d(LOGTAG, "Error occured in picture crop");
             }
         }
 

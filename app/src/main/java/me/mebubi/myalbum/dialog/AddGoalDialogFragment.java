@@ -129,14 +129,14 @@ public class AddGoalDialogFragment extends DialogFragment {
                     Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     pickIntent.setType("image/*");
 
-                    Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+                    Intent chooserIntent = Intent.createChooser(getIntent, getResources().getString(R.string.select_photo));
                     chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
 
                     startActivityForResult(chooserIntent, PICK_IMAGE);
                 }
                 catch(ActivityNotFoundException anfe){
                     //display an error message
-                    String errorMessage = "Whoops - your device doesn't support capturing images!";
+                    String errorMessage = getResources().getString(R.string.your_device_doesnt_support_capturing_images);
                     Toast toast = Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT);
                     toast.show();
                 }
@@ -151,11 +151,11 @@ public class AddGoalDialogFragment extends DialogFragment {
 
     private boolean inputIsValid(Goal goal) {
         if (goal.getTitle().equals("")) {
-            Toast.makeText(getContext(), "Title is empty", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getResources().getString(R.string.title_is_empty), Toast.LENGTH_LONG).show();
             return false;
         }
         if (goal.getImage() == null) {
-            Toast.makeText(getContext(), "No image uploaded", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getResources().getString(R.string.no_image_uploaded), Toast.LENGTH_LONG).show();
             return false;
         }
         return true;
@@ -184,7 +184,6 @@ public class AddGoalDialogFragment extends DialogFragment {
             }
         }
 
-        Log.d(LOGTAG, "An activity has returned a result...");
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
@@ -195,8 +194,6 @@ public class AddGoalDialogFragment extends DialogFragment {
                 try {
                     Bitmap largePic = ImageUtility.decodeUri(getContext(), picUri, 300);
 
-                    Log.d(LOGTAG, "Image upload method : image : " + largePic);
-                    // TODO upload them as jpg
                     goalImageViewEdit.setImageBitmap(largePic);
                     picToUpload = largePic;
 
@@ -208,7 +205,6 @@ public class AddGoalDialogFragment extends DialogFragment {
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
-                Log.d(LOGTAG, "Error occured in picture crop");
             }
         }
 

@@ -157,15 +157,15 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
 
     public void showConfirmDialogForExportAllPhotos(Activity activity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Are you sure you want to export all of your photos?");
+        builder.setTitle(getResources().getString(R.string.export_all_photos_are_you_sure));
         // Add the buttons
-        builder.setPositiveButton("Export", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getResources().getString(R.string.export), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
             new ExportAllPhotosTask().execute();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
             }
@@ -176,9 +176,9 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
 
     public void showConfirmDialogForResetPassword(Activity activity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Are you sure you want to reset your password?");
+        builder.setTitle(getResources().getString(R.string.reset_password_are_you_sure));
         // Add the buttons
-        builder.setPositiveButton("Reset", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getResources().getString(R.string.reset), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
                 // TODO
@@ -188,7 +188,7 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
                 finish();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
             }
@@ -234,9 +234,9 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         // called when ok clicked in dialog
         if (success) {
             albumAdapter.notifyDataSetChanged();
-            Toast.makeText(getApplicationContext(), "Album deleted!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.album_deleted), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getApplicationContext(), "Delete unsuccessful", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.delete_unsuccessful), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -247,7 +247,7 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
             albumRecyclerView.scrollToPosition(0);
             new LoadDatabaseTask(true, null).execute();
         } else {
-            Toast.makeText(getApplicationContext(), "Edit unsuccessful", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.edit_unsuccessful), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -257,7 +257,7 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
             new AddAlbumTask(album).execute();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Add unsuccessful", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.add_unsuccessful), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -296,7 +296,6 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             if (success) {
-                Log.d(LOGTAG, "Album list: " + albumAdapter.getAlbumList());
                 albumAdapter.notifyDataSetChanged();
             }
             lock = false;
@@ -376,7 +375,7 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
             super.onPostExecute(o);
             if (success) {
                 albumAdapter.notifyDataSetChanged();
-                Toast.makeText(getApplicationContext(), "Export successful! Check the /my_albums_exported_images directory", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.export_successful), Toast.LENGTH_LONG).show();
             }
             hideProgressBar();
         }
