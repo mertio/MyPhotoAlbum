@@ -70,7 +70,6 @@ public class GoalView extends ConstraintLayout {
         this.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
                 showConfirmDialogForGoalDelete((Activity) getContext(), goal);
                 return true;
             }
@@ -79,7 +78,6 @@ public class GoalView extends ConstraintLayout {
         goalImage.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
                 showConfirmDialogForGoalDelete((Activity) getContext(), goal);
                 return true;
             }
@@ -88,7 +86,6 @@ public class GoalView extends ConstraintLayout {
         goalImage.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
                 onGoalClickListener = (OnGoalClickListener) getContext();
                 onGoalClickListener.onGoalClick(goal.getCreationDate() + ".jpg");
             }
