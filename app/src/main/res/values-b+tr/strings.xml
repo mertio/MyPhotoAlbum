@@ -44,6 +44,7 @@
     <string name="are_you_sure_export_photo">Bu resmi dışa aktarmak istediğinize emin misiniz?</string>
     <string name="are_you_sure_export_album">Bu albümdeki resimleri dışa aktarmak istediğinize emin misiniz?</string>
     <string name="turn_on_storage_permission_to_export">Dışa aktarmak için lütfen ayarlardan depolama izni veriniz</string>
+    <string name="turn_on_storage_permission">Lütfen ayarlardan depolama izni veriniz</string>
     <string name="add_album">Albüm Ekle</string>
     <string name="select_photo">Resim Seç</string>
     <string name="your_device_doesnt_support_capturing_images">Maalesef cihazınız görüntü yakalama desteklemiyor!</string>

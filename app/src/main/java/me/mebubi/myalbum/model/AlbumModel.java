@@ -22,13 +22,13 @@ public class AlbumModel {
     }
 
     public static void addAlbum(Album album) {
-        synchronized (albums) {
+        synchronized (getAlbums()) {
             albums.add(album);
         }
     }
 
     public static void deleteAlbum(int albumId) {
-        synchronized (albums) {
+        synchronized (getAlbums()) {
             for (int i = 0; i < albums.size(); i++) {
                 if(albums.get(i).getAlbumId() == albumId) {
                     AlbumModel.getAlbums().remove(i);
@@ -38,7 +38,7 @@ public class AlbumModel {
     }
 
     public static void editAlbum(Album album) {
-        synchronized (albums) {
+        synchronized (getAlbums()) {
             for (int i = 0; i < albums.size(); i++) {
                 if(albums.get(i).getAlbumId() == album.getAlbumId()) {
                     AlbumModel.getAlbums().get(i).setAlbumImage(album.getAlbumImage());
@@ -53,7 +53,7 @@ public class AlbumModel {
 
 
     public static void clearAlbums() {
-        synchronized (albums) {
+        synchronized (getAlbums()) {
             albums.clear();
         }
     }

@@ -1,5 +1,6 @@
 package me.mebubi.myalbum.dialog;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -161,6 +163,9 @@ public class AddGoalDialogFragment extends DialogFragment {
         return true;
     }
 
+    private void requestForReadPermission() {
+        ActivityCompat.requestPermissions(getActivity(), new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, 101);
+    }
 
 
     @Override
@@ -177,6 +182,9 @@ public class AddGoalDialogFragment extends DialogFragment {
                     originalPicToUpload = ImageUtility.decodeUri(getContext(), picUri, 600);
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (SecurityException e) {
+                    Toast.makeText(getContext(), getResources().getString(R.string.turn_on_storage_permission), Toast.LENGTH_LONG).show();
+                    requestForReadPermission();
                 }
 
                 CropImage.activity(picUri).setAspectRatio(1,1).setFixAspectRatio(true).start(getActivity());
@@ -205,6 +213,8 @@ public class AddGoalDialogFragment extends DialogFragment {
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
+                Toast.makeText(getContext(), getResources().getString(R.string.turn_on_storage_permission), Toast.LENGTH_LONG).show();
+                requestForReadPermission();
             }
         }
 

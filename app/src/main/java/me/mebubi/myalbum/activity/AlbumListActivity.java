@@ -1,19 +1,23 @@
 package me.mebubi.myalbum.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -85,10 +89,23 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         }
 
         if (id == R.id.action_export_all) {
-            showConfirmDialogForExportAllPhotos(AlbumListActivity.this);
+            if (!checkIfAlreadyhavePermission()) {
+                requestForSpecificPermission();
+            } else {
+                showConfirmDialogForExportAllPhotos(AlbumListActivity.this);
+            }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean checkIfAlreadyhavePermission() {
+        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void initialize() {
@@ -208,6 +225,28 @@ public class AlbumListActivity extends AppCompatActivity implements AlbumView.On
         albumRecyclerView.setVisibility(View.VISIBLE);
         addAlbumButton.show();
         albumProgressBar.setVisibility(View.GONE);
+    }
+
+
+    private void requestForSpecificPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, 101);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 101:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //granted
+
+                } else {
+                    //not granted
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.turn_on_storage_permission_to_export), Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     @Override
